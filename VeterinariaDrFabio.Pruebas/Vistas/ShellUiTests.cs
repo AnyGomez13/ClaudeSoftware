@@ -35,7 +35,8 @@ public class ShellUiTests
         public override void WriteLine(string? mensaje) => Mensajes.Add(mensaje ?? string.Empty);
     }
 
-    private sealed record Escena(MainWindow Ventana, MainViewModel Modelo, AutenticacionFalsa Autenticacion)
+    private sealed record Escena(
+        MainWindow Ventana, MainViewModel Modelo, AutenticacionFalsa Autenticacion, AbridorFalso Abridor, DialogoFalso Dialogos)
     {
         public FrameworkElement Raiz => (FrameworkElement)Ventana.Content;
 
@@ -84,9 +85,12 @@ public class ShellUiTests
     private static Escena CrearEscena(BaseDatosTemporal bd)
     {
         var autenticacion = new AutenticacionFalsa();
-        var proveedor = ComposicionDePrueba.Crear(bd, autenticacion, new DialogoFalso());
+        var abridor = new AbridorFalso();
+        var dialogos = new DialogoFalso();
+        var proveedor = ComposicionDePrueba.Crear(bd, autenticacion, dialogos, new ConectividadDePrueba(), abridor);
 
-        var escena = new Escena(proveedor.GetRequiredService<MainWindow>(), proveedor.GetRequiredService<MainViewModel>(), autenticacion);
+        var escena = new Escena(
+            proveedor.GetRequiredService<MainWindow>(), proveedor.GetRequiredService<MainViewModel>(), autenticacion, abridor, dialogos);
         escena.Dibujar();
         return escena;
     }
@@ -149,6 +153,22 @@ public class ShellUiTests
             .First(b => ((MascotaFila)b.CommandParameter).Nombre == mascota);
         abrir.Command.Execute(abrir.CommandParameter);
         escena.Dibujar();
+    }
+
+    /// <summary>Deja a Rocky con una vacunación vencida y otra próxima, para la pantalla de alertas.</summary>
+    private static void SembrarAlertas(BaseDatosTemporal bd)
+    {
+        var rocky = bd.Escalar<int>("SELECT Id FROM Mascota WHERE Nombre = 'Rocky';");
+        var fabio = DatosDePrueba.IdDeVeterinario(bd, "Fabio");
+        DatosDePrueba.CrearVacunacion(bd, rocky, fabio, "Moquillo", DateTime.Today.AddDays(-300), DateTime.Today.AddDays(-5));
+        DatosDePrueba.CrearVacunacion(bd, rocky, fabio, "Parvovirus", DateTime.Today.AddDays(-200), DateTime.Today.AddDays(10));
+    }
+
+    private static Color ColorDeInsignia(DependencyObject tabla, string texto)
+    {
+        var bloque = Descendientes(tabla).OfType<TextBlock>().First(t => t.Text == texto);
+        var insignia = (Border)VisualTreeHelper.GetParent(bloque);
+        return ((SolidColorBrush)insignia.Background).Color;
     }
 
     private static void SembrarPropietarios(BaseDatosTemporal bd)
@@ -697,12 +717,150 @@ public class ShellUiTests
     }
 
     [Fact]
+    [Trait("Req", "RF-12")]
+    public void RF12_LaFichaGeneraLaVistaPreviaDelCarnetYDescargaElPdf()
+    {
+        using var bd = new BaseDatosTemporal();
+        SembrarPropietarios(bd);
+        SembrarHistoria(bd);
+        var carpeta = Path.Combine(Path.GetTempPath(), "VeterinariaDrFabio.Pruebas", Guid.NewGuid().ToString("N"));
+        try
+        {
+            HiloUi.Ejecutar(() =>
+            {
+                var escena = CrearEscena(bd);
+                escena.IniciarSesionDesdeElModelo();
+                escena.IrASeccion("Mascotas");
+                AbrirFichaDe(escena, "Rocky");
+                Assert.True(escena.Boton(escena.Vista<MascotaDetalleView>(), "Generar carnet").IsEnabled);
+
+                escena.Boton(escena.Vista<MascotaDetalleView>(), "Generar carnet").Command.Execute(null);
+                escena.Dibujar();
+
+                var carnet = escena.Vista<CarnetView>();
+                Assert.Equal(Visibility.Visible, escena.Control<ScrollViewer>(carnet, "VistaPrevia").Visibility);
+                Assert.Equal(Visibility.Collapsed, escena.Control<Border>(carnet, "PanelAviso").Visibility);
+                Assert.Contains("Rocky", escena.Control<ItemsControl>(carnet, "DatosMascota").Items.Cast<DatoCarnet>().Select(d => d.Valor));
+                Assert.Equal(["Ana Pérez", "3001234567"], escena.Control<ItemsControl>(carnet, "DatosPropietario").Items.Cast<DatoCarnet>().Select(d => d.Valor).ToList());
+                var tabla = escena.Control<DataGrid>(carnet, "TablaVacunas");
+                Assert.Equal(["Vacuna", "Aplicada", "Próximo refuerzo", "Veterinario"], tabla.Columns.Select(c => (string)c.Header).ToList());
+                Assert.Equal("Rabia", Assert.IsType<VacunaCarnetFila>(Assert.Single(tabla.Items)).Vacuna);
+                Assert.StartsWith("Generado el ", Texto(carnet, "TextoFechaGeneracion"));
+                var descargar = escena.Boton(carnet, "Descargar PDF");
+                Assert.True(descargar.IsEnabled);
+
+                var ruta = Path.Combine(carpeta, "carnet.pdf");
+                escena.Dialogos.RutaDeGuardado = ruta;
+                descargar.Command.Execute(null);
+
+                Assert.True(new FileInfo(ruta).Length > 1024);
+                Assert.Contains(ruta, Assert.Single(escena.Dialogos.Mensajes));
+
+                escena.Boton(carnet, "Volver").Command.Execute(null);
+                escena.Dibujar();
+                Assert.NotNull(escena.Vista<MascotaDetalleView>());
+            });
+        }
+        finally
+        {
+            if (Directory.Exists(carpeta))
+            {
+                Directory.Delete(carpeta, recursive: true);
+            }
+        }
+    }
+
+    [Fact]
+    [Trait("Req", "RF-12")]
+    public void RF12_UnaMascotaSinVacunasMuestraElAvisoEnLugarDelCarnet()
+    {
+        using var bd = new BaseDatosTemporal();
+        SembrarPropietarios(bd);
+        HiloUi.Ejecutar(() =>
+        {
+            var escena = CrearEscena(bd);
+            escena.IniciarSesionDesdeElModelo();
+            escena.IrASeccion("Mascotas");
+            AbrirFichaDe(escena, "Misu");
+
+            escena.Boton(escena.Vista<MascotaDetalleView>(), "Generar carnet").Command.Execute(null);
+            escena.Dibujar();
+
+            var carnet = escena.Vista<CarnetView>();
+            Assert.Equal(Visibility.Visible, escena.Control<Border>(carnet, "PanelAviso").Visibility);
+            Assert.Contains("no tiene vacunas", Texto(carnet, "MensajeAviso"));
+            Assert.Equal(Visibility.Collapsed, escena.Control<ScrollViewer>(carnet, "VistaPrevia").Visibility);
+            Assert.False(escena.Boton(carnet, "Descargar PDF").IsEnabled);
+        });
+    }
+
+    [Fact]
+    [Trait("Req", "RF-14")]
+    public void RF14_LaPantallaDeAlertasResaltaVencidasYProximasYEnviaElRecordatorio()
+    {
+        using var bd = new BaseDatosTemporal();
+        SembrarPropietarios(bd);
+        SembrarAlertas(bd);
+        HiloUi.Ejecutar(() =>
+        {
+            var escena = CrearEscena(bd);
+            escena.IniciarSesionDesdeElModelo();
+
+            escena.IrASeccion("Alertas");
+
+            var vista = escena.Vista<AlertasView>();
+            var tabla = escena.Control<DataGrid>(vista, "TablaAlertas");
+            Assert.Equal(["Mascota", "Propietario", "Tipo", "Fecha objetivo", "Estado", string.Empty], tabla.Columns.Select(c => (string)c.Header).ToList());
+            Assert.Equal(["Vacunación: Moquillo", "Vacunación: Parvovirus"], tabla.Items.Cast<AlertaFila>().Select(a => a.Tipo).ToList());
+            Assert.Equal((Color)Application.Current.Resources["ErrorColor"], ColorDeInsignia(tabla, "Vencida"));
+            Assert.Equal((Color)Application.Current.Resources["AdvertenciaColor"], ColorDeInsignia(tabla, "Próxima"));
+            Assert.Equal(Visibility.Collapsed, escena.Control<TextBlock>(vista, "MensajeSinAlertas").Visibility);
+            Assert.Equal(Visibility.Collapsed, escena.Control<Border>(vista, "PanelRecordatorio").Visibility);
+
+            var enviar = Descendientes(tabla).OfType<Button>().First(b => b.Content as string == "Enviar recordatorio");
+            Assert.True(enviar.IsEnabled);
+            enviar.Command.Execute(enviar.CommandParameter);
+            escena.Dibujar();
+
+            Assert.StartsWith("https://wa.me/573001234567?text=", Assert.Single(escena.Abridor.Enlaces));
+            Assert.Equal(Visibility.Visible, escena.Control<Border>(vista, "PanelRecordatorio").Visibility);
+            Assert.Equal("Recordatorio para Ana Pérez (Rocky)", Texto(vista, "TituloRecordatorio"));
+            Assert.Contains("vacuna Moquillo", escena.Control<TextBox>(vista, "MensajeRecordatorio").Text);
+
+            escena.Boton(vista, "Marcar como enviado").Command.Execute(null);
+            escena.Dibujar();
+
+            Assert.Equal(Visibility.Collapsed, escena.Control<Border>(vista, "PanelRecordatorio").Visibility);
+            Assert.Equal("Vacunación: Parvovirus", Assert.IsType<AlertaFila>(Assert.Single(tabla.Items)).Tipo);
+        });
+    }
+
+    [Fact]
+    [Trait("Req", "RF-14")]
+    public void RF14_SinAlertasLaPantallaLoInforma()
+    {
+        using var bd = new BaseDatosTemporal();
+        HiloUi.Ejecutar(() =>
+        {
+            var escena = CrearEscena(bd);
+            escena.IniciarSesionDesdeElModelo();
+
+            escena.IrASeccion("Alertas");
+
+            var vista = escena.Vista<AlertasView>();
+            Assert.Empty(escena.Control<DataGrid>(vista, "TablaAlertas").Items);
+            Assert.Equal(Visibility.Visible, escena.Control<TextBlock>(vista, "MensajeSinAlertas").Visibility);
+        });
+    }
+
+    [Fact]
     [Trait("Req", "RNF-01")]
     public void RNF01_LasVistasNoGeneranErroresDeBinding()
     {
         using var bd = new BaseDatosTemporal();
         SembrarPropietarios(bd);
         SembrarHistoria(bd);
+        SembrarAlertas(bd);
         var escucha = new EscuchaDeEnlaces();
         PresentationTraceSources.Refresh();
         PresentationTraceSources.DataBindingSource.Switch.Level = SourceLevels.Warning;
@@ -768,6 +926,29 @@ public class ShellUiTests
                 editarMascota.Command.Execute(editarMascota.CommandParameter);
                 escena.Dibujar();
 
+                escena.IrASeccion("Mascotas");
+                AbrirFichaDe(escena, "Rocky");
+                escena.Boton(escena.Vista<MascotaDetalleView>(), "Generar carnet").Command.Execute(null);
+                escena.Dibujar();
+                escena.Boton(escena.Vista<CarnetView>(), "Volver").Command.Execute(null);
+                escena.Dibujar();
+                escena.IrASeccion("Mascotas");
+                AbrirFichaDe(escena, "Misu");
+                escena.Boton(escena.Vista<MascotaDetalleView>(), "Generar carnet").Command.Execute(null);
+                escena.Dibujar();
+
+                escena.IrASeccion("Alertas");
+                var vistaAlertas = escena.Vista<AlertasView>();
+                var enviarAlerta = Descendientes(vistaAlertas).OfType<Button>().First(b => b.Content as string == "Enviar recordatorio");
+                enviarAlerta.Command.Execute(enviarAlerta.CommandParameter);
+                escena.Dibujar();
+                escena.Boton(vistaAlertas, "Cerrar").Command.Execute(null);
+                escena.Dibujar();
+                enviarAlerta.Command.Execute(enviarAlerta.CommandParameter);
+                escena.Dibujar();
+                escena.Boton(vistaAlertas, "Marcar como enviado").Command.Execute(null);
+                escena.Dibujar();
+
                 escena.IrASeccion("Veterinarios");
                 var veterinarios = escena.Vista<VeterinariosView>();
                 escena.Boton(veterinarios, "Nuevo veterinario").Command.Execute(null);
@@ -795,6 +976,7 @@ public class ShellUiTests
         using var bd = new BaseDatosTemporal();
         SembrarPropietarios(bd);
         SembrarHistoria(bd);
+        SembrarAlertas(bd);
         HiloUi.Ejecutar(() =>
         {
             var escena = CrearEscena(bd);
@@ -864,6 +1046,20 @@ public class ShellUiTests
             escena.Control<TextBox>(formularioMascota, "CampoPeso").Text = "4,2";
             escena.Dibujar();
             GuardarPng(escena.Raiz, "muestra-mascota-form.png");
+
+            escena.IrASeccion("Mascotas");
+            AbrirFichaDe(escena, "Rocky");
+            escena.Boton(escena.Vista<MascotaDetalleView>(), "Generar carnet").Command.Execute(null);
+            escena.Dibujar();
+            GuardarPng(escena.Raiz, "muestra-carnet-vista.png");
+
+            escena.IrASeccion("Alertas");
+            var vistaAlertas = escena.Vista<AlertasView>();
+            GuardarPng(escena.Raiz, "muestra-alertas.png");
+            var enviarAlerta = Descendientes(vistaAlertas).OfType<Button>().First(b => b.Content as string == "Enviar recordatorio");
+            enviarAlerta.Command.Execute(enviarAlerta.CommandParameter);
+            escena.Dibujar();
+            GuardarPng(escena.Raiz, "muestra-alertas-recordatorio.png");
 
             escena.IrASeccion("Veterinarios");
             var veterinarios = escena.Vista<VeterinariosView>();

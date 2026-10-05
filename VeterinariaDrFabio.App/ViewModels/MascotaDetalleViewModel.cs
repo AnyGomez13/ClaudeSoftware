@@ -35,7 +35,11 @@ public class MascotaDetalleViewModel : BaseViewModel
         _navegacion = navegacion;
         NuevoProcedimientoCommand = new RelayCommand(NuevoProcedimiento, () => Encontrada);
         RegistrarVacunaCommand = new RelayCommand(RegistrarVacuna, () => Encontrada);
+        GenerarCarnetCommand = new RelayCommand(GenerarCarnet, () => Encontrada);
     }
+
+    /// <summary>Abre la vista previa del carnet de vacunación (P-10) de esta mascota.</summary>
+    public RelayCommand GenerarCarnetCommand { get; }
 
     /// <summary>Abre el formulario P-08 para registrar un procedimiento de esta mascota.</summary>
     public RelayCommand NuevoProcedimientoCommand { get; }
@@ -56,6 +60,7 @@ public class MascotaDetalleViewModel : BaseViewModel
                 OnPropertyChanged(nameof(NoEncontrada));
                 NuevoProcedimientoCommand.RaiseCanExecuteChanged();
                 RegistrarVacunaCommand.RaiseCanExecuteChanged();
+                GenerarCarnetCommand.RaiseCanExecuteChanged();
             }
         }
     }
@@ -185,6 +190,9 @@ public class MascotaDetalleViewModel : BaseViewModel
 
     private void RegistrarVacuna() =>
         _navegacion.NavegarA<VacunacionEdicionViewModel>(vm => vm.Nueva(_mascotaId, Nombre, AlTerminarRegistro));
+
+    private void GenerarCarnet() =>
+        _navegacion.NavegarA<CarnetViewModel>(vm => vm.Cargar(_mascotaId));
 
     /// <summary>Vuelve a la ficha y, si se guardó un registro, la recarga para que aparezca en la historia.</summary>
     private void AlTerminarRegistro(bool seGuardo)

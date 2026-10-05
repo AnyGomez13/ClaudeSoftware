@@ -1,0 +1,69 @@
+<UserControl x:Class="VeterinariaDrFabio.App.Vistas.AlertasView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <!-- Vacunaciones y desparasitaciones próximas o vencidas -->
+        <Border Grid.Row="0" Style="{StaticResource Tarjeta}">
+            <Grid>
+                <DataGrid x:Name="TablaAlertas" ItemsSource="{Binding Alertas}">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Mascota" Binding="{Binding Mascota, Mode=OneWay}" Width="1.2*" MinWidth="90" />
+                        <DataGridTextColumn Header="Propietario" Binding="{Binding Propietario, Mode=OneWay}" Width="1.5*" MinWidth="110" />
+                        <DataGridTextColumn Header="Tipo" Binding="{Binding Tipo, Mode=OneWay}" Width="1.5*" MinWidth="130" />
+                        <DataGridTextColumn Header="Fecha objetivo" Binding="{Binding FechaObjetivo, Mode=OneWay}" Width="*" MinWidth="130" />
+                        <DataGridTemplateColumn Header="Estado" Width="*" MinWidth="90">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <Border x:Name="Insignia" CornerRadius="10" Padding="10,2" HorizontalAlignment="Left"
+                                            Background="{StaticResource AdvertenciaBrush}">
+                                        <TextBlock x:Name="TextoEstado" Text="{Binding Estado, Mode=OneWay}" FontSize="12" FontWeight="SemiBold"
+                                                   Foreground="{StaticResource TextoPrincipalBrush}" />
+                                    </Border>
+                                    <DataTemplate.Triggers>
+                                        <DataTrigger Binding="{Binding EsVencida}" Value="True">
+                                            <Setter TargetName="Insignia" Property="Background" Value="{StaticResource ErrorBrush}" />
+                                            <Setter TargetName="TextoEstado" Property="Foreground" Value="White" />
+                                        </DataTrigger>
+                                    </DataTemplate.Triggers>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                        <DataGridTemplateColumn Header="" Width="190">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <Button Content="Enviar recordatorio" Style="{StaticResource BotonSecundario}" HorizontalAlignment="Right"
+                                            Command="{Binding DataContext.EnviarRecordatorioCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
+                                            CommandParameter="{Binding}" />
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                    </DataGrid.Columns>
+                </DataGrid>
+                <TextBlock x:Name="MensajeSinAlertas" Text="No hay vacunaciones ni desparasitaciones próximas o vencidas."
+                           Style="{StaticResource EtiquetaTexto}" HorizontalAlignment="Center" VerticalAlignment="Center"
+                           Visibility="{Binding SinAlertas, Converter={StaticResource BoolAVisibilidad}}" />
+            </Grid>
+        </Border>
+
+        <!-- Recordatorio preparado: mensaje armado, listo para enviar por WhatsApp -->
+        <Border x:Name="PanelRecordatorio" Grid.Row="1" Style="{StaticResource Tarjeta}" Padding="20" Margin="0,16,0,0"
+                Visibility="{Binding HayRecordatorio, Converter={StaticResource BoolAVisibilidad}}">
+            <StackPanel>
+                <TextBlock x:Name="TituloRecordatorio" Text="{Binding TituloRecordatorio, Mode=OneWay}" Style="{StaticResource TituloTexto}" FontSize="16" />
+                <TextBlock Text="Se abrió WhatsApp con este mensaje escrito. Envíelo y después márquelo como enviado."
+                           Style="{StaticResource EtiquetaTexto}" Margin="0,4,0,10" TextWrapping="Wrap" />
+                <TextBox x:Name="MensajeRecordatorio" Text="{Binding MensajeRecordatorio, Mode=OneWay}" IsReadOnly="True" TextWrapping="Wrap"
+                         Height="Auto" MinHeight="64" Padding="8,6" VerticalContentAlignment="Top" Background="{StaticResource FondoBrush}" />
+                <StackPanel Orientation="Horizontal" Margin="0,14,0,0">
+                    <Button Content="Marcar como enviado" Style="{StaticResource BotonPrimario}" Command="{Binding MarcarEnviadoCommand}" />
+                    <Button Content="Cerrar" Style="{StaticResource BotonSecundario}" Margin="12,0,0,0" Command="{Binding CerrarRecordatorioCommand}" />
+                </StackPanel>
+            </StackPanel>
+        </Border>
+    </Grid>
+</UserControl>

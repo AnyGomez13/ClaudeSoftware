@@ -1,6 +1,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using VeterinariaDrFabio.App.Infraestructura;
 using VeterinariaDrFabio.Negocio.Servicios;
+using VeterinariaDrFabio.Negocio.Utilidades;
 using VeterinariaDrFabio.Pruebas.Datos;
 
 namespace VeterinariaDrFabio.Pruebas.ViewModels;
@@ -19,7 +20,7 @@ public abstract class PantallaTestBase : IDisposable
             Autenticacion.IniciarSesion(AutenticacionFalsa.UsuarioValido, AutenticacionFalsa.ClaveValida);
         }
 
-        Servicios = ComposicionDePrueba.Crear(Bd, Autenticacion, Dialogos);
+        Servicios = ComposicionDePrueba.Crear(Bd, Autenticacion, Dialogos, Conectividad, Abridor);
     }
 
     protected BaseDatosTemporal Bd { get; } = new();
@@ -27,6 +28,10 @@ public abstract class PantallaTestBase : IDisposable
     protected AutenticacionFalsa Autenticacion { get; } = new();
 
     protected DialogoFalso Dialogos { get; } = new();
+
+    protected ConectividadDePrueba Conectividad { get; } = new();
+
+    protected AbridorFalso Abridor { get; } = new();
 
     protected ServiceProvider Servicios { get; }
 
@@ -43,7 +48,12 @@ public abstract class PantallaTestBase : IDisposable
 /// <summary>Arma el contenedor de dependencias de la aplicación sobre una base de prueba.</summary>
 internal static class ComposicionDePrueba
 {
-    public static ServiceProvider Crear(BaseDatosTemporal bd, IAutenticacionService autenticacion, IDialogService dialogos)
+    public static ServiceProvider Crear(
+        BaseDatosTemporal bd,
+        IAutenticacionService autenticacion,
+        IDialogService dialogos,
+        IConectividad? conectividad = null,
+        IAbridorDeEnlaces? abridor = null)
     {
         var servicios = new ServiceCollection();
         ComposicionDeServicios.Registrar(servicios, bd.CadenaConexion);
@@ -51,6 +61,8 @@ internal static class ComposicionDePrueba
         // El último registro gana: la sesión y los diálogos se sustituyen por los de prueba.
         servicios.AddSingleton(autenticacion);
         servicios.AddSingleton(dialogos);
+        servicios.AddSingleton(conectividad ?? new ConectividadDePrueba());
+        servicios.AddSingleton(abridor ?? new AbridorFalso());
         return servicios.BuildServiceProvider();
     }
 }

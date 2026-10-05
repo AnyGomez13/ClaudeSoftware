@@ -27,11 +27,12 @@ public class MainViewModel : BaseViewModel
             new ItemMenu("Veterinarios"),
         ];
 
-        // Cada sección del menú abre su pantalla; la que aún no tiene (Alertas) se agrega en la fase 14.
+        // Cada sección del menú abre su pantalla.
         _destinos = new Dictionary<string, Action>
         {
             ["Propietarios"] = () => Navegacion.NavegarASeccion<PropietariosViewModel>(),
             ["Mascotas"] = () => Navegacion.NavegarASeccion<MascotasViewModel>(),
+            ["Alertas"] = () => Navegacion.NavegarASeccion<AlertasViewModel>(),
             ["Veterinarios"] = () => Navegacion.NavegarASeccion<VeterinariosViewModel>(),
         };
 
@@ -83,7 +84,7 @@ public class MainViewModel : BaseViewModel
         IrASeccion(Secciones[0].Titulo);
     }
 
-    /// <summary>Marca la sección en el menú y muestra su pantalla; sin pantalla, el área de contenido queda vacía.</summary>
+    /// <summary>Marca la sección en el menú y muestra su pantalla.</summary>
     private void IrASeccion(string? titulo)
     {
         var seccion = Secciones.FirstOrDefault(s => s.Titulo == titulo);

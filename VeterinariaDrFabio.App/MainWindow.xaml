@@ -28,6 +28,12 @@
         <DataTemplate DataType="{x:Type vm:VacunacionEdicionViewModel}">
             <vistas:VacunacionEdicionView />
         </DataTemplate>
+        <DataTemplate DataType="{x:Type vm:CarnetViewModel}">
+            <vistas:CarnetView />
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type vm:AlertasViewModel}">
+            <vistas:AlertasView />
+        </DataTemplate>
         <DataTemplate DataType="{x:Type vm:VeterinariosViewModel}">
             <vistas:VeterinariosView />
         </DataTemplate>
@@ -68,22 +74,7 @@
                 </DockPanel>
             </Border>
 
-            <Grid Margin="28">
-                <ContentControl Content="{Binding Navegacion.ViewModelActual}" />
-                <TextBlock Text="Esta sección se habilita en las siguientes fases del desarrollo."
-                           HorizontalAlignment="Center" VerticalAlignment="Center">
-                    <TextBlock.Resources>
-                        <Style TargetType="TextBlock" BasedOn="{StaticResource EtiquetaTexto}">
-                            <Setter Property="Visibility" Value="Collapsed" />
-                            <Style.Triggers>
-                                <DataTrigger Binding="{Binding Navegacion.ViewModelActual}" Value="{x:Null}">
-                                    <Setter Property="Visibility" Value="Visible" />
-                                </DataTrigger>
-                            </Style.Triggers>
-                        </Style>
-                    </TextBlock.Resources>
-                </TextBlock>
-            </Grid>
+            <ContentControl Margin="28" Content="{Binding Navegacion.ViewModelActual}" />
         </DockPanel>
     </Grid>
 </Window>

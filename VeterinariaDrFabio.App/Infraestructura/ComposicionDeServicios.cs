@@ -50,6 +50,7 @@ internal static class ComposicionDeServicios
         // Presentación: navegación y diálogos únicos; cada pantalla se crea nueva al navegar a ella.
         servicios.AddSingleton<INavigationService, NavigationService>();
         servicios.AddSingleton<IDialogService, DialogService>();
+        servicios.AddSingleton<IAbridorDeEnlaces, AbridorDeEnlaces>();
         servicios.AddSingleton<LoginViewModel>();
         servicios.AddSingleton<MainViewModel>();
         servicios.AddTransient<PropietariosViewModel>();
@@ -59,6 +60,8 @@ internal static class ComposicionDeServicios
         servicios.AddTransient<MascotaDetalleViewModel>();
         servicios.AddTransient<ProcedimientoEdicionViewModel>();
         servicios.AddTransient<VacunacionEdicionViewModel>();
+        servicios.AddTransient<CarnetViewModel>();
+        servicios.AddTransient<AlertasViewModel>();
         servicios.AddTransient<VeterinariosViewModel>();
         servicios.AddTransient<MainWindow>();
 

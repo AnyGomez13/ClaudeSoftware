@@ -59,6 +59,8 @@
                             Command="{Binding NuevoProcedimientoCommand}" />
                     <Button x:Name="BotonRegistrarVacuna" Content="Registrar vacuna" Style="{StaticResource BotonPrimario}" Margin="12,0,0,0"
                             Command="{Binding RegistrarVacunaCommand}" />
+                    <Button x:Name="BotonGenerarCarnet" Content="Generar carnet" Style="{StaticResource BotonSecundario}" Margin="12,0,0,0"
+                            Command="{Binding GenerarCarnetCommand}" />
                 </StackPanel>
                 <TextBlock Text="Historia clínica" Style="{StaticResource TituloTexto}" FontSize="18" VerticalAlignment="Center" />
             </DockPanel>

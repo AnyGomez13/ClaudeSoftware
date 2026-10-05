@@ -75,14 +75,14 @@ public class MainViewModelTests : PantallaTestBase
 
     [Fact]
     [Trait("Req", "RF-01")]
-    public void RF01_UnaSeccionSinPantallaTodaviaDejaElAreaDeContenidoVacia()
+    public void RF01_CadaSeccionDelMenuAbreSuPantalla()
     {
         IniciarSesion();
 
         _modelo.NavegarSeccionCommand.Execute("Alertas");
 
         Assert.Equal("Alertas", _modelo.SeccionActual);
-        Assert.Null(_modelo.Navegacion.ViewModelActual);
+        Assert.IsType<AlertasViewModel>(_modelo.Navegacion.ViewModelActual);
     }
 
     [Fact]

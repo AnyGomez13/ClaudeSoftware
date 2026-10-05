@@ -102,5 +102,5 @@
 | 11 | UI Propietarios y Veterinarios | terminada |
 | 12 | UI Mascotas y ficha clínica | terminada |
 | 13 | UI Procedimiento y vacunación | terminada |
-| 14 | UI Carnet y Alertas | pendiente |
+| 14 | UI Carnet y Alertas | terminada |
 | 15 | Empaquetado y revisión final | pendiente |

@@ -9,6 +9,10 @@ public sealed class DialogoFalso : IDialogService
 
     public string? RutaDeGuardado { get; set; }
 
+    public string? NombreSugeridoRecibido { get; private set; }
+
+    public string? FiltroRecibido { get; private set; }
+
     public List<string> Mensajes { get; } = [];
 
     public List<string> Errores { get; } = [];
@@ -25,5 +29,10 @@ public sealed class DialogoFalso : IDialogService
         return RespuestaConfirmar;
     }
 
-    public string? PedirRutaDeGuardado(string nombreSugerido, string filtro) => RutaDeGuardado;
+    public string? PedirRutaDeGuardado(string nombreSugerido, string filtro)
+    {
+        NombreSugeridoRecibido = nombreSugerido;
+        FiltroRecibido = filtro;
+        return RutaDeGuardado;
+    }
 }

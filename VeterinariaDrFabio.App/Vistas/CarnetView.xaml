@@ -1,0 +1,80 @@
+<UserControl x:Class="VeterinariaDrFabio.App.Vistas.CarnetView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <!-- Título y acciones -->
+        <DockPanel Grid.Row="0" Margin="0,0,0,20">
+            <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+                <Button Content="Volver" Style="{StaticResource BotonSecundario}" Command="{Binding VolverCommand}" />
+                <Button x:Name="BotonDescargarPdf" Content="Descargar PDF" Style="{StaticResource BotonPrimario}" Margin="12,0,0,0"
+                        Command="{Binding DescargarPdfCommand}" />
+            </StackPanel>
+            <TextBlock Text="Carnet de vacunación" Style="{StaticResource TituloTexto}" VerticalAlignment="Center" />
+        </DockPanel>
+
+        <!-- Sin vacunas registradas -->
+        <Border x:Name="PanelAviso" Grid.Row="1" Style="{StaticResource Tarjeta}" Padding="24" VerticalAlignment="Top"
+                Visibility="{Binding TieneAviso, Converter={StaticResource BoolAVisibilidad}}">
+            <TextBlock x:Name="MensajeAviso" Text="{Binding Aviso, Mode=OneWay}" Style="{StaticResource EtiquetaTexto}" FontSize="14" TextWrapping="Wrap" />
+        </Border>
+
+        <!-- Vista previa del carnet -->
+        <ScrollViewer x:Name="VistaPrevia" Grid.Row="1" VerticalScrollBarVisibility="Auto"
+                      Visibility="{Binding HayCarnet, Converter={StaticResource BoolAVisibilidad}}">
+            <StackPanel>
+                <Grid Margin="0,0,0,20">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="20" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+
+                    <Border Grid.Column="0" Style="{StaticResource Tarjeta}" Padding="20">
+                        <StackPanel>
+                            <TextBlock Text="Mascota" FontWeight="SemiBold" Foreground="{StaticResource PrimarioBrush}" Margin="0,0,0,8" />
+                            <ItemsControl x:Name="DatosMascota" ItemsSource="{Binding DatosMascota}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Margin="0,0,0,4"><Run Text="{Binding Etiqueta, Mode=OneWay}" Foreground="{StaticResource TextoSecundarioBrush}" /><Run Text=": " Foreground="{StaticResource TextoSecundarioBrush}" /><Run Text="{Binding Valor, Mode=OneWay}" /></TextBlock>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </StackPanel>
+                    </Border>
+
+                    <Border Grid.Column="2" Style="{StaticResource Tarjeta}" Padding="20" VerticalAlignment="Top">
+                        <StackPanel>
+                            <TextBlock Text="Propietario" FontWeight="SemiBold" Foreground="{StaticResource PrimarioBrush}" Margin="0,0,0,8" />
+                            <ItemsControl x:Name="DatosPropietario" ItemsSource="{Binding DatosPropietario}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Margin="0,0,0,4"><Run Text="{Binding Etiqueta, Mode=OneWay}" Foreground="{StaticResource TextoSecundarioBrush}" /><Run Text=": " Foreground="{StaticResource TextoSecundarioBrush}" /><Run Text="{Binding Valor, Mode=OneWay}" /></TextBlock>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </StackPanel>
+                    </Border>
+                </Grid>
+
+                <Border Style="{StaticResource Tarjeta}">
+                    <DataGrid x:Name="TablaVacunas" ItemsSource="{Binding Vacunas}" MaxHeight="360">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Vacuna" Binding="{Binding Vacuna, Mode=OneWay}" Width="2*" MinWidth="120" />
+                            <DataGridTextColumn Header="Aplicada" Binding="{Binding Aplicada, Mode=OneWay}" Width="*" MinWidth="100" />
+                            <DataGridTextColumn Header="Próximo refuerzo" Binding="{Binding Refuerzo, Mode=OneWay}" Width="*" MinWidth="140" />
+                            <DataGridTextColumn Header="Veterinario" Binding="{Binding Veterinario, Mode=OneWay}" Width="*" MinWidth="110" />
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Border>
+
+                <TextBlock x:Name="TextoFechaGeneracion" Text="{Binding FechaGeneracion, Mode=OneWay}" Style="{StaticResource EtiquetaTexto}"
+                           Margin="0,12,0,0" />
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
+</UserControl>

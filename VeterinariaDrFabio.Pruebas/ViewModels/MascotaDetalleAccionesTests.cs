@@ -125,6 +125,20 @@ public class MascotaDetalleAccionesTests : PantallaTestBase
     }
 
     [Fact]
+    [Trait("Req", "RF-12")]
+    public void RF12_GenerarCarnetAbreLaVistaPreviaDeLaMascota()
+    {
+        var ficha = AbrirFicha();
+        DatosDePrueba.CrearVacunacion(Bd, _mascotaId, DatosDePrueba.IdDeVeterinario(Bd, "Fabio"), "Rabia", new DateTime(2026, 2, 1));
+
+        ficha.GenerarCarnetCommand.Execute(null);
+
+        var carnet = Assert.IsType<CarnetViewModel>(Navegacion.ViewModelActual);
+        Assert.True(carnet.HayCarnet);
+        Assert.Equal("Rocky", carnet.DatosMascota.Single(d => d.Etiqueta == "Nombre").Valor);
+    }
+
+    [Fact]
     [Trait("Req", "RF-09")]
     public void RF09_SinMascotaEncontradaLosBotonesNoSeHabilitan()
     {
@@ -135,5 +149,6 @@ public class MascotaDetalleAccionesTests : PantallaTestBase
 
         Assert.False(ficha.NuevoProcedimientoCommand.CanExecute(null));
         Assert.False(ficha.RegistrarVacunaCommand.CanExecute(null));
+        Assert.False(ficha.GenerarCarnetCommand.CanExecute(null));
     }
 }
