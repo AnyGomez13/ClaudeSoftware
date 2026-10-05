@@ -1,4 +1,5 @@
 using System.Globalization;
+using VeterinariaDrFabio.App.Infraestructura;
 using VeterinariaDrFabio.Negocio.Servicios;
 
 namespace VeterinariaDrFabio.App.ViewModels;
@@ -12,6 +13,7 @@ public class MascotaDetalleViewModel : BaseViewModel
     private const string SinDato = "—";
 
     private readonly IMascotaService _mascotas;
+    private readonly INavigationService _navegacion;
     private int _mascotaId;
     private bool _encontrada;
     private string _nombre = string.Empty;
@@ -27,10 +29,19 @@ public class MascotaDetalleViewModel : BaseViewModel
     private string _propietarioTelefono = string.Empty;
     private IReadOnlyList<RegistroClinicoFila> _registros = [];
 
-    public MascotaDetalleViewModel(IMascotaService mascotas)
+    public MascotaDetalleViewModel(IMascotaService mascotas, INavigationService navegacion)
     {
         _mascotas = mascotas;
+        _navegacion = navegacion;
+        NuevoProcedimientoCommand = new RelayCommand(NuevoProcedimiento, () => Encontrada);
+        RegistrarVacunaCommand = new RelayCommand(RegistrarVacuna, () => Encontrada);
     }
+
+    /// <summary>Abre el formulario P-08 para registrar un procedimiento de esta mascota.</summary>
+    public RelayCommand NuevoProcedimientoCommand { get; }
+
+    /// <summary>Abre el formulario P-09 para registrar una vacuna de esta mascota.</summary>
+    public RelayCommand RegistrarVacunaCommand { get; }
 
     public int MascotaId => _mascotaId;
 
@@ -43,6 +54,8 @@ public class MascotaDetalleViewModel : BaseViewModel
             if (SetProperty(ref _encontrada, value))
             {
                 OnPropertyChanged(nameof(NoEncontrada));
+                NuevoProcedimientoCommand.RaiseCanExecuteChanged();
+                RegistrarVacunaCommand.RaiseCanExecuteChanged();
             }
         }
     }
@@ -165,6 +178,22 @@ public class MascotaDetalleViewModel : BaseViewModel
         PropietarioTelefono = mascota.Propietario?.Telefono ?? string.Empty;
         Registros = historia.Registros.Select(r => new RegistroClinicoFila(r)).ToList();
         Encontrada = true;
+    }
+
+    private void NuevoProcedimiento() =>
+        _navegacion.NavegarA<ProcedimientoEdicionViewModel>(vm => vm.Nuevo(_mascotaId, Nombre, AlTerminarRegistro));
+
+    private void RegistrarVacuna() =>
+        _navegacion.NavegarA<VacunacionEdicionViewModel>(vm => vm.Nueva(_mascotaId, Nombre, AlTerminarRegistro));
+
+    /// <summary>Vuelve a la ficha y, si se guardó un registro, la recarga para que aparezca en la historia.</summary>
+    private void AlTerminarRegistro(bool seGuardo)
+    {
+        _navegacion.Volver();
+        if (seGuardo)
+        {
+            Recargar();
+        }
     }
 
     private static string ValorOGuion(string? valor) => string.IsNullOrWhiteSpace(valor) ? SinDato : valor;

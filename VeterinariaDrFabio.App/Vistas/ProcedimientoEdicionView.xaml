@@ -1,0 +1,86 @@
+<UserControl x:Class="VeterinariaDrFabio.App.Vistas.ProcedimientoEdicionView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <!-- Campos: se desplazan si la ventana es baja -->
+        <ScrollViewer Grid.Row="0" VerticalScrollBarVisibility="Auto">
+            <Border Style="{StaticResource Tarjeta}" Padding="32" Width="700" HorizontalAlignment="Left">
+                <StackPanel>
+                    <TextBlock x:Name="TituloFormulario" Text="{Binding Titulo, Mode=OneWay}" Style="{StaticResource TituloTexto}" Margin="0,0,0,24"
+                               TextWrapping="Wrap" />
+
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="16" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+
+                        <StackPanel Grid.Column="0" Margin="0,0,0,16">
+                            <TextBlock Text="Fecha (obligatoria)" Style="{StaticResource EtiquetaTexto}" />
+                            <DatePicker x:Name="CampoFecha" Height="36" Margin="0,4,0,0" VerticalContentAlignment="Center"
+                                        SelectedDate="{Binding Fecha, Mode=TwoWay}" DisplayDateEnd="{Binding FechaMaxima, Mode=OneWay}" />
+                        </StackPanel>
+                        <StackPanel Grid.Column="2" Margin="0,0,0,16">
+                            <TextBlock Text="Tipo de procedimiento (obligatorio)" Style="{StaticResource EtiquetaTexto}" />
+                            <ComboBox x:Name="CampoTipo" Height="36" Margin="0,4,0,0" IsEditable="True" VerticalContentAlignment="Center"
+                                      ItemsSource="{Binding TiposSugeridos}" Text="{Binding TipoProcedimiento, UpdateSourceTrigger=PropertyChanged}" />
+                        </StackPanel>
+                    </Grid>
+
+                    <TextBlock Text="Veterinario que lo evaluó (obligatorio)" Style="{StaticResource EtiquetaTexto}" />
+                    <ComboBox x:Name="CampoVeterinario" Height="36" Margin="0,4,0,16" VerticalContentAlignment="Center"
+                              ItemsSource="{Binding Veterinarios}" DisplayMemberPath="Texto" SelectedItem="{Binding VeterinarioSeleccionado}" />
+
+                    <TextBlock Text="Descripción o diagnóstico (obligatoria)" Style="{StaticResource EtiquetaTexto}" />
+                    <TextBox x:Name="CampoDescripcion" Height="72" Margin="0,4,0,16" Padding="8,6" VerticalContentAlignment="Top"
+                             AcceptsReturn="True" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto"
+                             Text="{Binding Descripcion, UpdateSourceTrigger=PropertyChanged}" />
+
+                    <TextBlock Text="Tratamiento u observaciones" Style="{StaticResource EtiquetaTexto}" />
+                    <TextBox x:Name="CampoTratamiento" Height="72" Margin="0,4,0,16" Padding="8,6" VerticalContentAlignment="Top"
+                             AcceptsReturn="True" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto"
+                             Text="{Binding Tratamiento, UpdateSourceTrigger=PropertyChanged}" />
+
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="16" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+
+                        <StackPanel Grid.Column="0">
+                            <TextBlock Text="Peso en el momento (kg)" Style="{StaticResource EtiquetaTexto}" />
+                            <TextBox x:Name="CampoPeso" Margin="0,4,0,4" Text="{Binding PesoTexto, UpdateSourceTrigger=PropertyChanged}" />
+                            <TextBlock x:Name="ErrorPeso" Text="{Binding ErrorPeso, Mode=OneWay}" Style="{StaticResource ErrorTexto}" TextWrapping="Wrap"
+                                       Visibility="{Binding TieneErrorPeso, Converter={StaticResource BoolAVisibilidad}}" />
+                        </StackPanel>
+                        <StackPanel Grid.Column="2">
+                            <TextBlock Text="Próxima fecha recomendada" Style="{StaticResource EtiquetaTexto}" />
+                            <DatePicker x:Name="CampoProximaFecha" Height="36" Margin="0,4,0,0" VerticalContentAlignment="Center"
+                                        SelectedDate="{Binding ProximaFecha, Mode=TwoWay}" />
+                        </StackPanel>
+                    </Grid>
+                </StackPanel>
+            </Border>
+        </ScrollViewer>
+
+        <!-- Barra de acciones fija: el error y los botones siempre quedan a la vista -->
+        <Border Grid.Row="1" Style="{StaticResource Tarjeta}" Width="700" HorizontalAlignment="Left" Margin="0,12,0,0" Padding="32,14">
+            <StackPanel>
+                <TextBlock x:Name="MensajeError" Text="{Binding MensajeError, Mode=OneWay}" Style="{StaticResource ErrorTexto}" TextWrapping="Wrap"
+                           Margin="0,0,0,10" Visibility="{Binding TieneError, Converter={StaticResource BoolAVisibilidad}}" />
+                <StackPanel Orientation="Horizontal">
+                    <Button Content="Guardar" Style="{StaticResource BotonPrimario}" IsDefault="True" Command="{Binding GuardarCommand}" />
+                    <Button Content="Cancelar" Style="{StaticResource BotonSecundario}" Margin="12,0,0,0" IsCancel="True"
+                            Command="{Binding CancelarCommand}" />
+                </StackPanel>
+            </StackPanel>
+        </Border>
+    </Grid>
+</UserControl>

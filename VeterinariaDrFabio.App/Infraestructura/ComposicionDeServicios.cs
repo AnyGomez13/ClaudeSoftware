@@ -57,6 +57,8 @@ internal static class ComposicionDeServicios
         servicios.AddTransient<MascotasViewModel>();
         servicios.AddTransient<MascotaEdicionViewModel>();
         servicios.AddTransient<MascotaDetalleViewModel>();
+        servicios.AddTransient<ProcedimientoEdicionViewModel>();
+        servicios.AddTransient<VacunacionEdicionViewModel>();
         servicios.AddTransient<VeterinariosViewModel>();
         servicios.AddTransient<MainWindow>();
 

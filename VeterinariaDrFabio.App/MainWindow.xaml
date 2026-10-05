@@ -22,6 +22,12 @@
         <DataTemplate DataType="{x:Type vm:MascotaDetalleViewModel}">
             <vistas:MascotaDetalleView />
         </DataTemplate>
+        <DataTemplate DataType="{x:Type vm:ProcedimientoEdicionViewModel}">
+            <vistas:ProcedimientoEdicionView />
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type vm:VacunacionEdicionViewModel}">
+            <vistas:VacunacionEdicionView />
+        </DataTemplate>
         <DataTemplate DataType="{x:Type vm:VeterinariosViewModel}">
             <vistas:VeterinariosView />
         </DataTemplate>

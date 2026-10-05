@@ -104,7 +104,7 @@ Convenciones: `Dom` = `VeterinariaDrFabio.Dominio`, `Dat` = `VeterinariaDrFabio.
 - Dependencias: Fase 12.
 - Cubre: RF-09, RF-11, RN-07, RNF-01, CU-08, CU-09, P-08, P-09.
 - Criterio de terminado: pruebas de ViewModel verdes (sin veterinario no guarda); checklist manual: registrar procedimiento y vacunación con y sin próxima fecha y comprobar que aparecen ordenados en la historia y sin opción de editar ni borrar.
-- Estado: pendiente
+- Estado: terminada
 
 ## Fase 14 — UI Carnet y Alertas
 - Objetivo: pantallas P-10 y P-11 con descarga de PDF y envío de recordatorio.
@@ -193,3 +193,6 @@ Contradicciones técnicas que bloqueen: ninguna.
 | A-64 | P-06: el selector ofrece los propietarios activos y, al editar, también el actual aunque esté inactivo; sin propietarios se avisa que hay que crear uno primero. El peso admite coma o punto decimal. Especie es un campo editable con sugerencias (Perro, Gato, Ave, Conejo, SUP-D11); Sexo ofrece "No especificado", Macho y Hembra; el calendario no permite fechas futuras. Inactivar/Reactivar funciona como en P-04 (A-57). | Concreta RN-03, RN-06, SUP-04 y SUP-D11; la coma decimal es la habitual en Colombia. |
 | A-65 | La aplicación ajusta el idioma de WPF a la cultura del equipo al arrancar. | Sin esto WPF formatea fechas y números como en-US en las vistas. |
 | A-66 | Los selectores desplegables (`ComboBox`) y el calendario (`DatePicker`) usan el aspecto estándar de Windows, distinto del estilo plano del resto. | Un estilo propio exige reescribir su plantilla completa y no cambia la funcionalidad; queda como ajuste visual pendiente, a tu decisión. |
+| A-67 | La ficha (P-07) ahora tiene "Nuevo procedimiento" y "Registrar vacuna". Al guardar o cancelar se vuelve a la ficha, que se recarga si se guardó; "Generar carnet" se agrega en la Fase 14. | Cumple A-62. |
+| A-68 | En P-08 y P-09 el veterinario no viene preseleccionado: hay que elegirlo, y solo se ofrecen los activos. La fecha parte en hoy y no admite fechas futuras; el peso de P-08 es opcional y admite coma o punto. Tipo y vacuna son campos editables con sugerencias (Consulta, Cirugía, Control, Desparasitación; Rabia, Parvovirus, Moquillo, Triple canina, Triple felina) y admiten texto libre (SUP-10, SUP-D11). Las sugerencias son orientativas y las puedes cambiar. | RN-07 exige atribuir cada registro a un veterinario; el diseño no fija las listas de sugerencias. "Desparasitación" se escribe así para que genere alertas (A-09). |
+| A-69 | En P-08 los botones Guardar y Cancelar y el mensaje de error están en una barra fija bajo la tarjeta, porque con la ventana en su tamaño mínimo (680 px) el formulario no cabe y los botones quedaban fuera de la vista. | Un error de validación fuera de la vista pasaría desapercibido. |

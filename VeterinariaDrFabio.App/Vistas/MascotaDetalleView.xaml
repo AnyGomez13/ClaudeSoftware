@@ -53,7 +53,15 @@
                 </Grid>
             </Border>
 
-            <TextBlock Grid.Row="1" Text="Historia clínica" Style="{StaticResource TituloTexto}" FontSize="18" Margin="0,0,0,12" />
+            <DockPanel Grid.Row="1" Margin="0,0,0,12">
+                <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+                    <Button x:Name="BotonNuevoProcedimiento" Content="Nuevo procedimiento" Style="{StaticResource BotonPrimario}"
+                            Command="{Binding NuevoProcedimientoCommand}" />
+                    <Button x:Name="BotonRegistrarVacuna" Content="Registrar vacuna" Style="{StaticResource BotonPrimario}" Margin="12,0,0,0"
+                            Command="{Binding RegistrarVacunaCommand}" />
+                </StackPanel>
+                <TextBlock Text="Historia clínica" Style="{StaticResource TituloTexto}" FontSize="18" VerticalAlignment="Center" />
+            </DockPanel>
 
             <!-- Línea de tiempo cronológica de procedimientos y vacunaciones -->
             <Border Grid.Row="2" Style="{StaticResource Tarjeta}">

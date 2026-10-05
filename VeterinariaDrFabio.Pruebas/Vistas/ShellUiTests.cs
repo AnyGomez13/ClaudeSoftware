@@ -141,6 +141,16 @@ public class ShellUiTests
         DatosDePrueba.CrearProcedimiento(bd, rocky, fabio, "Consulta", new DateTime(2026, 3, 5));
     }
 
+    private static void AbrirFichaDe(Escena escena, string mascota)
+    {
+        var tabla = escena.Control<DataGrid>(escena.Vista<MascotasView>(), "TablaMascotas");
+        var abrir = Descendientes(tabla).OfType<Button>()
+            .Where(b => b.Content as string == "Abrir ficha")
+            .First(b => ((MascotaFila)b.CommandParameter).Nombre == mascota);
+        abrir.Command.Execute(abrir.CommandParameter);
+        escena.Dibujar();
+    }
+
     private static void SembrarPropietarios(BaseDatosTemporal bd)
     {
         var ana = DatosDePrueba.CrearPropietario(bd, "Ana Pérez", "3001234567");
@@ -573,6 +583,120 @@ public class ShellUiTests
     }
 
     [Fact]
+    [Trait("Req", "RF-09")]
+    public void RF09_LaFichaOfreceRegistrarUnProcedimientoYAlGuardarApareceEnLaHistoria()
+    {
+        using var bd = new BaseDatosTemporal();
+        SembrarPropietarios(bd);
+        HiloUi.Ejecutar(() =>
+        {
+            var escena = CrearEscena(bd);
+            escena.IniciarSesionDesdeElModelo();
+            escena.IrASeccion("Mascotas");
+            AbrirFichaDe(escena, "Rocky");
+            var ficha = escena.Vista<MascotaDetalleView>();
+            var historia = escena.Control<DataGrid>(ficha, "TablaHistoria");
+            Assert.Empty(historia.Items);
+            Assert.True(escena.Boton(ficha, "Registrar vacuna").IsEnabled);
+
+            escena.Boton(ficha, "Nuevo procedimiento").Command.Execute(null);
+            escena.Dibujar();
+
+            var formulario = escena.Vista<ProcedimientoEdicionView>();
+            Assert.Equal("Nuevo procedimiento — Rocky", Texto(formulario, "TituloFormulario"));
+            Assert.False(escena.Boton(formulario, "Guardar").IsEnabled);
+            var veterinario = escena.Control<ComboBox>(formulario, "CampoVeterinario");
+            Assert.Equal(2, veterinario.Items.Count);
+            Assert.Equal(DateTime.Today, escena.Control<DatePicker>(formulario, "CampoFecha").SelectedDate);
+
+            veterinario.SelectedIndex = 0;
+            escena.Control<ComboBox>(formulario, "CampoTipo").Text = "Desparasitación";
+            escena.Control<TextBox>(formulario, "CampoDescripcion").Text = "Desparasitación interna";
+            escena.Control<TextBox>(formulario, "CampoPeso").Text = "abc";
+            escena.Dibujar();
+            Assert.Equal(Visibility.Visible, escena.Control<TextBlock>(formulario, "ErrorPeso").Visibility);
+            Assert.True(escena.Boton(formulario, "Guardar").IsEnabled);
+
+            escena.Control<TextBox>(formulario, "CampoPeso").Text = "12,5";
+            escena.Dibujar();
+            Assert.Equal(Visibility.Collapsed, escena.Control<TextBlock>(formulario, "ErrorPeso").Visibility);
+            escena.Boton(formulario, "Guardar").Command.Execute(null);
+            escena.Dibujar();
+
+            var fichaDeNuevo = escena.Vista<MascotaDetalleView>();
+            var tabla = escena.Control<DataGrid>(fichaDeNuevo, "TablaHistoria");
+            var registro = Assert.IsType<RegistroClinicoFila>(Assert.Single(tabla.Items));
+            Assert.Equal("Procedimiento", registro.Tipo);
+            Assert.StartsWith("Desparasitación: Desparasitación interna", registro.Detalle);
+            Assert.Equal(Visibility.Collapsed, escena.Control<TextBlock>(fichaDeNuevo, "MensajeSinRegistros").Visibility);
+        });
+    }
+
+    [Fact]
+    [Trait("Req", "RF-11")]
+    public void RF11_LaFichaOfreceRegistrarUnaVacunaYAlGuardarApareceEnLaHistoria()
+    {
+        using var bd = new BaseDatosTemporal();
+        SembrarPropietarios(bd);
+        HiloUi.Ejecutar(() =>
+        {
+            var escena = CrearEscena(bd);
+            escena.IniciarSesionDesdeElModelo();
+            escena.IrASeccion("Mascotas");
+            AbrirFichaDe(escena, "Rocky");
+
+            escena.Boton(escena.Vista<MascotaDetalleView>(), "Registrar vacuna").Command.Execute(null);
+            escena.Dibujar();
+
+            var formulario = escena.Vista<VacunacionEdicionView>();
+            Assert.Equal("Registrar vacuna — Rocky", Texto(formulario, "TituloFormulario"));
+            Assert.False(escena.Boton(formulario, "Guardar").IsEnabled);
+            escena.Control<ComboBox>(formulario, "CampoVeterinario").SelectedIndex = 1;
+            escena.Control<ComboBox>(formulario, "CampoVacuna").Text = "Rabia";
+            escena.Control<DatePicker>(formulario, "CampoProximaFecha").SelectedDate = DateTime.Today.AddYears(1);
+            escena.Control<TextBox>(formulario, "CampoLote").Text = "L-2026-01";
+            escena.Dibujar();
+            Assert.True(escena.Boton(formulario, "Guardar").IsEnabled);
+
+            escena.Boton(formulario, "Guardar").Command.Execute(null);
+            escena.Dibujar();
+
+            var tabla = escena.Control<DataGrid>(escena.Vista<MascotaDetalleView>(), "TablaHistoria");
+            var registro = Assert.IsType<RegistroClinicoFila>(Assert.Single(tabla.Items));
+            Assert.Equal("Vacunación", registro.Tipo);
+            Assert.StartsWith("Rabia. Lote: L-2026-01", registro.Detalle);
+            Assert.Equal("William", registro.Veterinario);
+        });
+    }
+
+    [Fact]
+    [Trait("Req", "RF-09")]
+    public void RF09_CancelarUnFormularioClinicoVuelveALaFichaSinCambios()
+    {
+        using var bd = new BaseDatosTemporal();
+        SembrarPropietarios(bd);
+        HiloUi.Ejecutar(() =>
+        {
+            var escena = CrearEscena(bd);
+            escena.IniciarSesionDesdeElModelo();
+            escena.IrASeccion("Mascotas");
+            AbrirFichaDe(escena, "Rocky");
+
+            escena.Boton(escena.Vista<MascotaDetalleView>(), "Nuevo procedimiento").Command.Execute(null);
+            escena.Dibujar();
+            escena.Boton(escena.Vista<ProcedimientoEdicionView>(), "Cancelar").Command.Execute(null);
+            escena.Dibujar();
+            Assert.Empty(escena.Control<DataGrid>(escena.Vista<MascotaDetalleView>(), "TablaHistoria").Items);
+
+            escena.Boton(escena.Vista<MascotaDetalleView>(), "Registrar vacuna").Command.Execute(null);
+            escena.Dibujar();
+            escena.Boton(escena.Vista<VacunacionEdicionView>(), "Cancelar").Command.Execute(null);
+            escena.Dibujar();
+            Assert.Empty(escena.Control<DataGrid>(escena.Vista<MascotaDetalleView>(), "TablaHistoria").Items);
+        });
+    }
+
+    [Fact]
     [Trait("Req", "RNF-01")]
     public void RNF01_LasVistasNoGeneranErroresDeBinding()
     {
@@ -606,10 +730,27 @@ public class ShellUiTests
                 escena.Dibujar();
 
                 escena.IrASeccion("Mascotas");
-                var mascotas = escena.Vista<MascotasView>();
-                var tablaMascotas = escena.Control<DataGrid>(mascotas, "TablaMascotas");
-                var abrirFicha = Descendientes(tablaMascotas).OfType<Button>().First(b => b.Content as string == "Abrir ficha");
-                abrirFicha.Command.Execute(abrirFicha.CommandParameter);
+                AbrirFichaDe(escena, "Rocky");
+                var fichaRocky = escena.Vista<MascotaDetalleView>();
+                escena.Boton(fichaRocky, "Nuevo procedimiento").Command.Execute(null);
+                escena.Dibujar();
+                var formularioProcedimiento = escena.Vista<ProcedimientoEdicionView>();
+                escena.Control<ComboBox>(formularioProcedimiento, "CampoVeterinario").SelectedIndex = 0;
+                escena.Control<TextBox>(formularioProcedimiento, "CampoPeso").Text = "abc";
+                escena.Control<DatePicker>(formularioProcedimiento, "CampoProximaFecha").SelectedDate = DateTime.Today.AddMonths(3);
+                escena.Dibujar();
+                escena.Boton(formularioProcedimiento, "Guardar").Command.Execute(null);
+                escena.Dibujar();
+                escena.Control<TextBox>(formularioProcedimiento, "CampoPeso").Text = string.Empty;
+                escena.Boton(formularioProcedimiento, "Cancelar").Command.Execute(null);
+                escena.Dibujar();
+                escena.Boton(escena.Vista<MascotaDetalleView>(), "Registrar vacuna").Command.Execute(null);
+                escena.Dibujar();
+                var formularioVacuna = escena.Vista<VacunacionEdicionView>();
+                escena.Control<ComboBox>(formularioVacuna, "CampoVeterinario").SelectedIndex = 1;
+                escena.Control<ComboBox>(formularioVacuna, "CampoVacuna").Text = "Rabia";
+                escena.Dibujar();
+                escena.Boton(formularioVacuna, "Guardar").Command.Execute(null);
                 escena.Dibujar();
                 ((MascotaDetalleViewModel)escena.Modelo.Navegacion.ViewModelActual!).Cargar(999);
                 escena.Dibujar();
@@ -684,10 +825,33 @@ public class ShellUiTests
             var mascotas = escena.Vista<MascotasView>();
             GuardarPng(escena.Raiz, "muestra-mascotas.png");
 
-            var abrir = Descendientes(mascotas).OfType<Button>().First(b => b.Content as string == "Abrir ficha");
-            abrir.Command.Execute(abrir.CommandParameter);
-            escena.Dibujar();
+            AbrirFichaDe(escena, "Rocky");
             GuardarPng(escena.Raiz, "muestra-ficha.png");
+
+            escena.Boton(escena.Vista<MascotaDetalleView>(), "Nuevo procedimiento").Command.Execute(null);
+            escena.Dibujar();
+            var formularioProcedimiento = escena.Vista<ProcedimientoEdicionView>();
+            escena.Control<ComboBox>(formularioProcedimiento, "CampoVeterinario").SelectedIndex = 0;
+            escena.Control<ComboBox>(formularioProcedimiento, "CampoTipo").Text = "Desparasitación";
+            escena.Control<TextBox>(formularioProcedimiento, "CampoDescripcion").Text = "Desparasitación interna con praziquantel";
+            escena.Control<TextBox>(formularioProcedimiento, "CampoPeso").Text = "12,8";
+            escena.Control<DatePicker>(formularioProcedimiento, "CampoProximaFecha").SelectedDate = DateTime.Today.AddMonths(3);
+            escena.Dibujar();
+            GuardarPng(escena.Raiz, "muestra-procedimiento-form.png");
+
+            escena.Boton(formularioProcedimiento, "Cancelar").Command.Execute(null);
+            escena.Dibujar();
+            escena.Boton(escena.Vista<MascotaDetalleView>(), "Registrar vacuna").Command.Execute(null);
+            escena.Dibujar();
+            var formularioVacuna = escena.Vista<VacunacionEdicionView>();
+            escena.Control<ComboBox>(formularioVacuna, "CampoVeterinario").SelectedIndex = 1;
+            escena.Control<ComboBox>(formularioVacuna, "CampoVacuna").Text = "Parvovirus";
+            escena.Control<DatePicker>(formularioVacuna, "CampoProximaFecha").SelectedDate = DateTime.Today.AddYears(1);
+            escena.Control<TextBox>(formularioVacuna, "CampoLote").Text = "L-2026-07";
+            escena.Dibujar();
+            GuardarPng(escena.Raiz, "muestra-vacuna-form.png");
+            escena.Boton(formularioVacuna, "Cancelar").Command.Execute(null);
+            escena.Dibujar();
 
             escena.IrASeccion("Mascotas");
             escena.Boton(escena.Vista<MascotasView>(), "Nueva mascota").Command.Execute(null);
