@@ -16,7 +16,7 @@ Convenciones: `Dom` = `VeterinariaDrFabio.Dominio`, `Dat` = `VeterinariaDrFabio.
 - Dependencias: Fase 1.
 - Cubre: objetos §4.1–4.9 de `requisitosC.md`; RN-02; SUP-D04, SUP-D05, SUP-D14, SUP-D15.
 - Criterio de terminado: `dotnet build` ok; `dotnet test --filter "Req=RN-02"` verde (propietario con varias mascotas; `Mascota` sin propiedad `Edad` persistente).
-- Estado: pendiente
+- Estado: terminada
 
 ## Fase 3 — Datos: DbContext, DDL y migración inicial
 - Objetivo: `VeterinariaDbContext`, mapeos por entidad y creación de la BD ejecutando el DDL de `disenoC.md` §2.9 (con CHECK, triggers, índices y seed) mediante una migración inicial.
@@ -146,3 +146,6 @@ Contradicciones técnicas que bloqueen: ninguna.
 | A-17 | La Fase 15 no incluye el recorrido manual de CU-01 a CU-13 ni pruebas de sistema o de usuario; son de la fase de pruebas del SDLC. | Decisión del usuario: xUnit y `dotnet format` son herramientas de codificación y no sustituyen esa fase. |
 | A-18 | Las pruebas apuntan a `net8.0-windows` porque referencian el proyecto WPF `App` (necesario para probar ViewModels en las Fases 10 a 14). | Un proyecto `net8.0` no puede referenciar uno `net8.0-windows`. |
 | A-19 | La solución usa formato `.sln` (no `.slnx`) y el SDK instalado es 9.0.313 compilando hacia `net8.0`. | `.sln` es compatible con `dotnet format` y el IDE; el diseño exige .NET 8 como destino, no como SDK. |
+| A-20 | Las entidades llevan propiedades de navegación (`Propietario.Mascotas`, `Mascota.Propietario`, etc.) además de las columnas de §3.2. | §3.2 dibuja esas relaciones; EF Core las usa en la Fase 3 y no agregan columnas. |
+| A-21 | Las columnas NULL se tipan `string?`, `double?` o `DateTime?`; los textos NOT NULL se inicializan con `string.Empty`. | Con `Nullable` activo el build debe quedar sin advertencias. |
+| A-22 | `Sexo`, `Tipo` y `Estado` quedan como `string`, sin enums ni constantes. | Así figuran en §3.2 y en los CHECK del DDL. |

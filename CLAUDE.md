@@ -90,7 +90,7 @@
 | Fase | Nombre | Estado |
 |---|---|---|
 | 1 | Solución, proyectos y tooling | terminada |
-| 2 | Dominio: entidades y modelos | pendiente |
+| 2 | Dominio: entidades y modelos | terminada |
 | 3 | Datos: DbContext, DDL y migración inicial | pendiente |
 | 4 | Repositorios | pendiente |
 | 5 | Utilidades: edad, hash y enlace WhatsApp | pendiente |
