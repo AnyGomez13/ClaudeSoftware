@@ -1,0 +1,23 @@
+# Compilación
+bin/
+obj/
+publish/
+
+# IDE
+.vs/
+.vscode/
+*.user
+*.suo
+
+# Pruebas y cobertura
+TestResults/
+*.trx
+coverage*/
+
+# Bases de datos locales
+*.db
+*.db-shm
+*.db-wal
+
+# Sistema
+Thumbs.db
