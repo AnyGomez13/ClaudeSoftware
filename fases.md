@@ -24,7 +24,7 @@ Convenciones: `Dom` = `VeterinariaDrFabio.Dominio`, `Dat` = `VeterinariaDrFabio.
 - Dependencias: Fase 2.
 - Cubre: RNF-03, RNF-07, RNF-08, RN-08, RN-12, RN-14 (a nivel BD), SUP-D01, SUP-D02, SUP-D10.
 - Criterio de terminado: `dotnet test --filter "FullyQualifiedName~EsquemaTests"` verde sobre una BD temporal: teléfono `2…` o de 9 dígitos rechazado; `DELETE` en Propietario, Mascota, Procedimiento y Vacunacion aborta; FK RESTRICT activa; `NombreUsuario` único; mascota sin propietario rechazada; seed con Fabio y William; recordatorio sin origen o con dos orígenes rechazado.
-- Estado: pendiente
+- Estado: terminada
 
 ## Fase 4 — Repositorios
 - Objetivo: interfaces y repositorios EF Core de las 7 entidades con las consultas del diseño.
@@ -149,3 +149,6 @@ Contradicciones técnicas que bloqueen: ninguna.
 | A-20 | Las entidades llevan propiedades de navegación (`Propietario.Mascotas`, `Mascota.Propietario`, etc.) además de las columnas de §3.2. | §3.2 dibuja esas relaciones; EF Core las usa en la Fase 3 y no agregan columnas. |
 | A-21 | Las columnas NULL se tipan `string?`, `double?` o `DateTime?`; los textos NOT NULL se inicializan con `string.Empty`. | Con `Nullable` activo el build debe quedar sin advertencias. |
 | A-22 | `Sexo`, `Tipo` y `Estado` quedan como `string`, sin enums ni constantes. | Así figuran en §3.2 y en los CHECK del DDL. |
+| A-23 | Las fechas usan convertidores explícitos: `yyyy-MM-dd` para fechas y `yyyy-MM-ddTHH:mm:ss` para `Recordatorio.FechaEnvio`. | Garantiza el formato exacto de SUP-D01 y que las comparaciones de texto sigan el orden cronológico. |
+| A-24 | La migración `EsquemaInicial` se escribió a mano y no tiene `ModelSnapshot`. | El esquema lo define el DDL del diseño; EF solo lo aplica y lo mapea. |
+| A-25 | La cadena de conexión se arma con `Foreign Keys=True` (clase `RutaBaseDatos`). | El `PRAGMA foreign_keys` del DDL no tiene efecto dentro de la transacción de la migración. |

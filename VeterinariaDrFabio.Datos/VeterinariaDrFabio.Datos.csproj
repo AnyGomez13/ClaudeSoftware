@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
     <ProjectReference Include="..\VeterinariaDrFabio.Dominio\VeterinariaDrFabio.Dominio.csproj" />
@@ -10,6 +10,10 @@
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="8.0.31" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Migraciones\EsquemaInicial.sql" LogicalName="VeterinariaDrFabio.Datos.Migraciones.EsquemaInicial.sql" />
   </ItemGroup>
 
   <PropertyGroup>

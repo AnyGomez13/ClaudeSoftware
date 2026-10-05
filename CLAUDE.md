@@ -91,7 +91,7 @@
 |---|---|---|
 | 1 | Solución, proyectos y tooling | terminada |
 | 2 | Dominio: entidades y modelos | terminada |
-| 3 | Datos: DbContext, DDL y migración inicial | pendiente |
+| 3 | Datos: DbContext, DDL y migración inicial | terminada |
 | 4 | Repositorios | pendiente |
 | 5 | Utilidades: edad, hash y enlace WhatsApp | pendiente |
 | 6 | Autenticación, veterinarios y usuario inicial | pendiente |
