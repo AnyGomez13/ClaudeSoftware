@@ -10,6 +10,9 @@ public interface IRecordatorioRepository
     /// <summary>Guarda los cambios, por ejemplo el paso de Pendiente a Enviado.</summary>
     void Actualizar(Recordatorio recordatorio);
 
+    /// <summary>Recordatorios ya marcados como Enviado, sin cargar mascota ni propietario.</summary>
+    List<Recordatorio> ListarEnviados();
+
     /// <summary>Recordatorios en estado Pendiente con mascota y propietario, ordenados por fecha objetivo.</summary>
     List<Recordatorio> ListarPendientes();
 }

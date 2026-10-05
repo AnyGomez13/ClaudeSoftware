@@ -49,9 +49,13 @@ public partial class App : Application
         servicios.AddTransient<IMascotaRepository, MascotaRepository>();
         servicios.AddTransient<IProcedimientoRepository, ProcedimientoRepository>();
         servicios.AddTransient<IVacunacionRepository, VacunacionRepository>();
+        servicios.AddTransient<IRecordatorioRepository, RecordatorioRepository>();
 
         servicios.AddTransient<HasherContrasena>();
         servicios.AddTransient<CalculadoraEdad>();
+        servicios.AddTransient<GeneradorEnlaceWhatsApp>();
+        servicios.AddTransient<GeneradorCarnetPdf>();
+        servicios.AddSingleton<IConectividad, ConectividadRed>();
 
         // La sesión vive mientras la aplicación esté abierta, por eso el servicio es único.
         servicios.AddSingleton<IAutenticacionService, AutenticacionService>();
@@ -60,6 +64,9 @@ public partial class App : Application
         servicios.AddTransient<IMascotaService, MascotaService>();
         servicios.AddTransient<IProcedimientoService, ProcedimientoService>();
         servicios.AddTransient<IVacunacionService, VacunacionService>();
+        servicios.AddTransient<ICarnetService, CarnetService>();
+        servicios.AddTransient<IAlertaService, AlertaService>();
+        servicios.AddTransient<IRecordatorioService, RecordatorioService>();
 
         // Los demás repositorios, servicios y ViewModels se registran en las fases siguientes.
         servicios.AddTransient<MainWindow>();

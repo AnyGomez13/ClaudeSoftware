@@ -22,6 +22,12 @@ public class RecordatorioRepository : IRecordatorioRepository
 
     public void Actualizar(Recordatorio recordatorio) => _contexto.GuardarModificacion(recordatorio);
 
+    public List<Recordatorio> ListarEnviados() =>
+        _contexto.Recordatorios
+            .AsNoTracking()
+            .Where(r => r.Estado == "Enviado")
+            .ToList();
+
     public List<Recordatorio> ListarPendientes() =>
         _contexto.Recordatorios
             .Include(r => r.Mascota!).ThenInclude(m => m.Propietario)

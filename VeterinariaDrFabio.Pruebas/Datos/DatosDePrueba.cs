@@ -30,6 +30,39 @@ internal static class DatosDePrueba
         return mascota;
     }
 
+    public static Vacunacion CrearVacunacion(
+        BaseDatosTemporal bd, int mascotaId, int veterinarioId, string nombre, DateTime aplicacion, DateTime? proxima = null)
+    {
+        using var contexto = bd.CrearContexto();
+        var vacunacion = new Vacunacion
+        {
+            MascotaId = mascotaId,
+            VeterinarioId = veterinarioId,
+            NombreVacuna = nombre,
+            FechaAplicacion = aplicacion,
+            ProximaFecha = proxima,
+        };
+        new VacunacionRepository(contexto).Agregar(vacunacion);
+        return vacunacion;
+    }
+
+    public static Procedimiento CrearProcedimiento(
+        BaseDatosTemporal bd, int mascotaId, int veterinarioId, string tipo, DateTime fecha, DateTime? proxima = null)
+    {
+        using var contexto = bd.CrearContexto();
+        var procedimiento = new Procedimiento
+        {
+            MascotaId = mascotaId,
+            VeterinarioId = veterinarioId,
+            TipoProcedimiento = tipo,
+            Descripcion = "Descripción",
+            Fecha = fecha,
+            ProximaFechaRecomendada = proxima,
+        };
+        new ProcedimientoRepository(contexto).Agregar(procedimiento);
+        return procedimiento;
+    }
+
     public static int IdDeVeterinario(BaseDatosTemporal bd, string nombre)
     {
         using var contexto = bd.CrearContexto();
