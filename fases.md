@@ -56,7 +56,7 @@ Convenciones: `Dom` = `VeterinariaDrFabio.Dominio`, `Dat` = `VeterinariaDrFabio.
 - Dependencias: Fases 4 y 5.
 - Cubre: RF-02, RF-03, RF-04, RF-05, RF-07, RF-08, RN-02, RN-03, RN-04, RN-06, RN-14, CU-02, CU-03, CU-04, CU-05, CU-07, RNF-08, SUP-04.
 - Criterio de terminado: pruebas verdes: sin nombre o sin teléfono no guarda; teléfono inválido rechazado; mascota sin propietario rechazada; peso ≤ 0 rechazado; fecha estimada aceptada; edad calculada en la consulta; inactivar propietario o mascota no borra datos; búsqueda sin resultados devuelve lista vacía.
-- Estado: pendiente
+- Estado: terminada
 
 ## Fase 8 — Servicios de procedimiento, vacunación e historia clínica
 - Objetivo: registrar procedimientos y vacunaciones y armar la historia clínica cronológica.
@@ -163,3 +163,6 @@ Contradicciones técnicas que bloqueen: ninguna.
 | A-34 | `--crear-usuario` sin más argumentos pide usuario y contraseña (dos veces) en una consola propia; con `--crear-usuario <usuario> <contraseña>` actúa sin interacción para scripts. No exige longitud mínima de contraseña. | Concreta A-06 sin agregar pantallas; los requisitos no definen política de contraseñas. |
 | A-35 | Provisional hasta la Fase 10: `DbContext`, repositorios y servicios se registran como transitorios (un contexto por resolución) y `AutenticacionService` como único. | La sesión debe vivir mientras la app esté abierta; un contexto por resolución evita que un error al guardar contamine a los demás. |
 | A-36 | La app crea o migra la BD en cada arranque (`Database.Migrate()`), incluido el de `--crear-usuario`. | El primer arranque debe crear `veterinaria.db` sin pasos manuales (RNF-03). |
+| A-37 | Los servicios agregan `ObtenerPorId` (propietario y mascota) y `CalcularEdadLegible` (mascota) a las firmas de §3.2. | P-03, P-04, P-06 y P-07 necesitan cargar un registro y mostrar la edad en texto en vivo sin que el ViewModel use utilidades directamente. |
+| A-38 | El teléfono se valida de forma estricta tras quitar espacios en los extremos: exactamente `3` + 9 dígitos, sin `+57` ni separadores internos. | RN-14 y el CHECK de la BD; la pantalla P-04 valida el formato `3#########` en vivo. |
+| A-39 | Reglas de mascota: propietario existente, nombre, especie, fecha de nacimiento no futura (A-30), peso > 0 y finito, sexo vacío, Macho o Hembra (sin distinguir mayúsculas). Se permite registrar mascotas de un propietario inactivo y cambiar el propietario al editar. | Derivan de RN-03, RN-06, SUP-03, SUP-04 y de los CHECK del DDL; los requisitos no prohíben lo demás. |

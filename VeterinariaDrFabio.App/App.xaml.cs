@@ -45,12 +45,17 @@ public partial class App : Application
 
         servicios.AddTransient<IUsuarioRepository, UsuarioRepository>();
         servicios.AddTransient<IVeterinarioRepository, VeterinarioRepository>();
+        servicios.AddTransient<IPropietarioRepository, PropietarioRepository>();
+        servicios.AddTransient<IMascotaRepository, MascotaRepository>();
 
         servicios.AddTransient<HasherContrasena>();
+        servicios.AddTransient<CalculadoraEdad>();
 
         // La sesión vive mientras la aplicación esté abierta, por eso el servicio es único.
         servicios.AddSingleton<IAutenticacionService, AutenticacionService>();
         servicios.AddTransient<IVeterinarioService, VeterinarioService>();
+        servicios.AddTransient<IPropietarioService, PropietarioService>();
+        servicios.AddTransient<IMascotaService, MascotaService>();
 
         // Los demás repositorios, servicios y ViewModels se registran en las fases siguientes.
         servicios.AddTransient<MainWindow>();
