@@ -32,7 +32,7 @@ Convenciones: `Dom` = `VeterinariaDrFabio.Dominio`, `Dat` = `VeterinariaDrFabio.
 - Dependencias: Fase 3.
 - Cubre: RF-03, RF-06, RF-10, RNF-08, RNF-09 (índices).
 - Criterio de terminado: `dotnet test --filter "FullyQualifiedName~RepositoryTests"` verde: alta/edición/inactivación, búsqueda de propietarios por nombre y por teléfono con sus mascotas, historial de mascota ordenado por fecha, `ListarConProximaFecha` en Vacunacion y Procedimiento.
-- Estado: pendiente
+- Estado: terminada
 
 ## Fase 5 — Utilidades: edad, hash y enlace WhatsApp
 - Objetivo: utilidades puras de Negocio sin dependencia de BD ni UI.
@@ -152,3 +152,6 @@ Contradicciones técnicas que bloqueen: ninguna.
 | A-23 | Las fechas usan convertidores explícitos: `yyyy-MM-dd` para fechas y `yyyy-MM-ddTHH:mm:ss` para `Recordatorio.FechaEnvio`. | Garantiza el formato exacto de SUP-D01 y que las comparaciones de texto sigan el orden cronológico. |
 | A-24 | La migración `EsquemaInicial` se escribió a mano y no tiene `ModelSnapshot`. | El esquema lo define el DDL del diseño; EF solo lo aplica y lo mapea. |
 | A-25 | La cadena de conexión se arma con `Foreign Keys=True` (clase `RutaBaseDatos`). | El `PRAGMA foreign_keys` del DDL no tiene efecto dentro de la transacción de la migración. |
+| A-26 | Se agregaron a las interfaces del diseño: `IUsuarioRepository.Agregar` y, en `IVeterinarioRepository`, `ListarTodos`, `ObtenerPorId` y `Actualizar`. | `--crear-usuario` (A-06) necesita guardar el usuario, y P-12 muestra el estado de todos los veterinarios y permite editarlos. |
+| A-27 | Los repositorios son síncronos, reciben el `VeterinariaDbContext` por constructor y guardan en cada `Agregar`/`Actualizar`. Los listados por mascota salen en orden cronológico ascendente. | §3.2 define los métodos sin `async` ni unidad de trabajo; la historia clínica se lee de la más antigua a la más reciente. |
+| A-28 | `Buscar` usa coincidencia parcial con `Contains` (LIKE de SQLite) e incluye inactivos; texto vacío devuelve todos. | P-03 y P-05 muestran la columna Estado; SQLite ignora mayúsculas solo en ASCII, así que "perez" no encuentra "Pérez". |
