@@ -1,20 +1,17 @@
 using Microsoft.Extensions.DependencyInjection;
-using VeterinariaDrFabio.App.Infraestructura;
 using VeterinariaDrFabio.App.ViewModels;
 
 namespace VeterinariaDrFabio.Pruebas.ViewModels;
 
 /// <summary>Pruebas de <see cref="MainViewModel"/>, el shell P-02 (RF-01, RN-13).</summary>
-public class MainViewModelTests
+public class MainViewModelTests : PantallaTestBase
 {
-    private readonly AutenticacionFalsa _autenticacion = new();
     private readonly MainViewModel _modelo;
 
     public MainViewModelTests()
+        : base(iniciarSesion: false)
     {
-        var servicios = new ServiceCollection().BuildServiceProvider();
-        var login = new LoginViewModel(_autenticacion);
-        _modelo = new MainViewModel(_autenticacion, login, new NavigationService(servicios, _autenticacion));
+        _modelo = Servicios.GetRequiredService<MainViewModel>();
     }
 
     private void IniciarSesion()
@@ -33,6 +30,7 @@ public class MainViewModelTests
         Assert.False(_modelo.NavegarSeccionCommand.CanExecute("Mascotas"));
         Assert.False(_modelo.CerrarSesionCommand.CanExecute(null));
         Assert.Equal(string.Empty, _modelo.SeccionActual);
+        Assert.Null(_modelo.Navegacion.ViewModelActual);
     }
 
     [Fact]
@@ -44,7 +42,7 @@ public class MainViewModelTests
 
     [Fact]
     [Trait("Req", "RF-01")]
-    public void RF01_AlIniciarSesionSeMuestraElShellConLaPrimeraSeccionYElUsuario()
+    public void RF01_AlIniciarSesionSeMuestraElShellConPropietariosYElUsuario()
     {
         IniciarSesion();
 
@@ -53,18 +51,38 @@ public class MainViewModelTests
         Assert.Equal("Propietarios", _modelo.SeccionActual);
         Assert.Equal(AutenticacionFalsa.UsuarioValido, _modelo.NombreUsuario);
         Assert.Equal(["Propietarios"], _modelo.Secciones.Where(s => s.EsActual).Select(s => s.Titulo).ToList());
+        Assert.IsType<PropietariosViewModel>(_modelo.Navegacion.ViewModelActual);
     }
 
     [Fact]
     [Trait("Req", "RF-01")]
-    public void RF01_ElMenuCambiaDeSeccion()
+    public void RF01_ElMenuAbreLaPantallaDeCadaSeccionImplementada()
+    {
+        IniciarSesion();
+
+        _modelo.NavegarSeccionCommand.Execute("Veterinarios");
+        Assert.Equal("Veterinarios", _modelo.SeccionActual);
+        Assert.IsType<VeterinariosViewModel>(_modelo.Navegacion.ViewModelActual);
+        Assert.Equal(["Veterinarios"], _modelo.Secciones.Where(s => s.EsActual).Select(s => s.Titulo).ToList());
+
+        _modelo.NavegarSeccionCommand.Execute("Mascotas");
+        Assert.Equal("Mascotas", _modelo.SeccionActual);
+        Assert.IsType<MascotasViewModel>(_modelo.Navegacion.ViewModelActual);
+
+        _modelo.NavegarSeccionCommand.Execute("Propietarios");
+        Assert.IsType<PropietariosViewModel>(_modelo.Navegacion.ViewModelActual);
+    }
+
+    [Fact]
+    [Trait("Req", "RF-01")]
+    public void RF01_UnaSeccionSinPantallaTodaviaDejaElAreaDeContenidoVacia()
     {
         IniciarSesion();
 
         _modelo.NavegarSeccionCommand.Execute("Alertas");
 
         Assert.Equal("Alertas", _modelo.SeccionActual);
-        Assert.Equal(["Alertas"], _modelo.Secciones.Where(s => s.EsActual).Select(s => s.Titulo).ToList());
+        Assert.Null(_modelo.Navegacion.ViewModelActual);
     }
 
     [Fact]
@@ -76,6 +94,7 @@ public class MainViewModelTests
         _modelo.NavegarSeccionCommand.Execute("Facturas");
 
         Assert.Equal("Propietarios", _modelo.SeccionActual);
+        Assert.IsType<PropietariosViewModel>(_modelo.Navegacion.ViewModelActual);
     }
 
     [Fact]
@@ -86,19 +105,20 @@ public class MainViewModelTests
 
         _modelo.CerrarSesionCommand.Execute(null);
 
-        Assert.False(_autenticacion.SesionActiva);
+        Assert.False(Autenticacion.SesionActiva);
         Assert.False(_modelo.SesionActiva);
         Assert.True(_modelo.MostrarLogin);
         Assert.Equal(string.Empty, _modelo.SeccionActual);
         Assert.Equal(string.Empty, _modelo.NombreUsuario);
         Assert.All(_modelo.Secciones, s => Assert.False(s.EsActual));
         Assert.Equal(string.Empty, _modelo.Login.Usuario);
+        Assert.Null(_modelo.Navegacion.ViewModelActual);
         Assert.False(_modelo.NavegarSeccionCommand.CanExecute("Mascotas"));
     }
 
     [Fact]
     [Trait("Req", "RF-01")]
-    public void RF01_UnLoginFallidoNoMuestraElShell()
+    public void RF01_UnLoginFallidoNoMuestraElShellNiNingunaPantalla()
     {
         _modelo.Login.Usuario = AutenticacionFalsa.UsuarioValido;
         _modelo.Login.Contrasena = "incorrecta";
@@ -106,5 +126,6 @@ public class MainViewModelTests
 
         Assert.False(_modelo.SesionActiva);
         Assert.True(_modelo.MostrarLogin);
+        Assert.Null(_modelo.Navegacion.ViewModelActual);
     }
 }

@@ -88,7 +88,7 @@ Convenciones: `Dom` = `VeterinariaDrFabio.Dominio`, `Dat` = `VeterinariaDrFabio.
 - Dependencias: Fase 10.
 - Cubre: RF-02, RF-03, RF-04, RF-16, RNF-01, CU-02, CU-03, CU-04, CU-13, P-03, P-04, P-12.
 - Criterio de terminado: pruebas de ViewModel verdes (validación en vivo del teléfono, guardar bloqueado sin nombre o teléfono); checklist manual: registrar, buscar por nombre y por teléfono, ver mascotas del propietario, editar, inactivar, ver Fabio y William y agregar un veterinario.
-- Estado: pendiente
+- Estado: terminada
 
 ## Fase 12 — UI Mascotas y ficha clínica
 - Objetivo: pantallas P-05, P-06 y P-07.
@@ -96,7 +96,7 @@ Convenciones: `Dom` = `VeterinariaDrFabio.Dominio`, `Dat` = `VeterinariaDrFabio.
 - Dependencias: Fase 11.
 - Cubre: RF-05, RF-06, RF-07, RF-08, RF-10, RNF-01, RNF-09, CU-05, CU-06, CU-07, P-05, P-06, P-07.
 - Criterio de terminado: pruebas de ViewModel verdes (guardar bloqueado sin propietario, peso > 0, edad en vivo); checklist manual: crear mascota con propietario existente y con fecha estimada, editar peso, abrir ficha con edad y línea de tiempo con veterinario de cada registro.
-- Estado: pendiente
+- Estado: terminada
 
 ## Fase 13 — UI Procedimiento y vacunación
 - Objetivo: pantallas P-08 y P-09 abiertas desde la ficha.
@@ -182,3 +182,14 @@ Contradicciones técnicas que bloqueen: ninguna.
 | A-53 | El botón Ingresar se habilita solo con usuario y contraseña escritos; el error se muestra como "Credenciales inválidas" (texto de §3.4 CU-01) y vacía la contraseña. `PasswordBox` no admite binding, por lo que el código de la vista (`LoginView.xaml.cs`) solo sincroniza la contraseña con el ViewModel. | Es el patrón MVVM habitual para contraseñas; §3.4 CU-01 fija el mensaje. |
 | A-54 | `INavigationService`, `IDialogService`, `LoginViewModel` y `MainViewModel` se registran como únicos; `IDialogService` ya incluye `MostrarError` y `PedirRutaDeGuardado` (A-12) aunque aún no se usen. | La sesión y la sección actual deben vivir mientras la app esté abierta; los diálogos se necesitan desde la Fase 11. |
 | A-55 | El proyecto de pruebas usa `UseWPF` y un hilo STA único (`HiloUi`) que carga la aplicación y los recursos reales para probar el XAML fuera de pantalla: estados de cada vista, botones habilitados, color de la sección activa y ausencia de errores de binding. | Los errores de XAML y de binding solo aparecen al ejecutar; las pruebas de ViewModel no los detectan. Esto encontró y corrigió el resaltado del menú, que no se aplicaba. |
+| A-56 | P-03 busca mientras se escribe, sin botón Buscar. Cada fila tiene Ver (selecciona y muestra las mascotas del propietario) y Editar; la lista de mascotas muestra Nombre, Especie y Estado. | RNF-01 pide pocos pasos; §4.3 pide "Ver/Editar" por fila y listar las mascotas al seleccionar, sin definir columnas. |
+| A-57 | P-04 ofrece "Inactivar" y, si el propietario ya está inactivo, "Reactivar" con el mismo botón; inactivar pide confirmación y reactivar no. El aviso en vivo del celular aparece solo cuando hay texto con formato inválido; Guardar se habilita con nombre y teléfono escritos y el servicio aplica la regla completa. | §4.3 solo nombra Inactivar; sin Reactivar un propietario inactivo quedaría así para siempre. La validación de campos vacíos en la interfaz es la de §1.2. |
+| A-58 | P-12 no abre otra pantalla: el alta y la edición usan un panel a la derecha de la lista, con casilla Activo solo al editar. | §4.3 dice "botón Nuevo veterinario y edición" sin pantalla propia para ello (y las pantallas están cerradas a P-01..P-12). |
+| A-59 | `ComposicionDeServicios` (nuevo, `App/Infraestructura`) concentra el registro de dependencias para que las pruebas usen el mismo que la aplicación; `PropietarioService.EsCelularColombiano` es pública para la validación en vivo. | Evita duplicar el registro y la expresión regular del celular, y una prueba verifica que todo se puede crear. |
+| A-60 | La asociación ViewModel→Vista se declara con `DataTemplate` en `MainWindow.xaml`. El menú abre Propietarios y Veterinarios; Mascotas y Alertas siguen con el texto provisional (A-52) hasta las Fases 12 y 14. | Cumple A-51; cada fase agrega su plantilla y su entrada en `MainViewModel`. |
+| A-61 | P-05 agrega "Editar" por fila junto a "Abrir ficha", y la lista busca mientras se escribe. | CU-07 exige llegar a editar una mascota y §4.3 solo nombra "Abrir ficha"; P-06 es "nueva/editar". |
+| A-62 | Los botones "Nuevo procedimiento" y "Registrar vacuna" de P-07 se agregan en la Fase 13 y "Generar carnet" en la Fase 14, con sus pantallas, para no dejar botones sin función. `MascotaDetalleViewModel.Recargar()` ya existe para refrescar la ficha al volver de esos formularios. La ficha no tiene botón Volver: se regresa con el menú Mascotas. | §4.3 los ubica en P-07 pero sus destinos (P-08, P-09, P-10) pertenecen a esas fases. |
+| A-63 | La historia clínica se muestra de la más antigua a la más reciente (orden cronológico ascendente, A-27), con Tipo "Procedimiento" o "Vacunación" y el veterinario de cada línea. | RF-06 y RF-10 piden orden por fecha; el sentido no estaba definido. |
+| A-64 | P-06: el selector ofrece los propietarios activos y, al editar, también el actual aunque esté inactivo; sin propietarios se avisa que hay que crear uno primero. El peso admite coma o punto decimal. Especie es un campo editable con sugerencias (Perro, Gato, Ave, Conejo, SUP-D11); Sexo ofrece "No especificado", Macho y Hembra; el calendario no permite fechas futuras. Inactivar/Reactivar funciona como en P-04 (A-57). | Concreta RN-03, RN-06, SUP-04 y SUP-D11; la coma decimal es la habitual en Colombia. |
+| A-65 | La aplicación ajusta el idioma de WPF a la cultura del equipo al arrancar. | Sin esto WPF formatea fechas y números como en-US en las vistas. |
+| A-66 | Los selectores desplegables (`ComboBox`) y el calendario (`DatePicker`) usan el aspecto estándar de Windows, distinto del estilo plano del resto. | Un estilo propio exige reescribir su plantilla completa y no cambia la funcionalidad; queda como ajuste visual pendiente, a tu decisión. |

@@ -10,6 +10,7 @@ namespace VeterinariaDrFabio.App.ViewModels;
 public class MainViewModel : BaseViewModel
 {
     private readonly IAutenticacionService _autenticacion;
+    private readonly Dictionary<string, Action> _destinos;
     private bool _sesionActiva;
     private string _seccionActual = string.Empty;
 
@@ -25,6 +26,14 @@ public class MainViewModel : BaseViewModel
             new ItemMenu("Alertas"),
             new ItemMenu("Veterinarios"),
         ];
+
+        // Cada sección del menú abre su pantalla; la que aún no tiene (Alertas) se agrega en la fase 14.
+        _destinos = new Dictionary<string, Action>
+        {
+            ["Propietarios"] = () => Navegacion.NavegarASeccion<PropietariosViewModel>(),
+            ["Mascotas"] = () => Navegacion.NavegarASeccion<MascotasViewModel>(),
+            ["Veterinarios"] = () => Navegacion.NavegarASeccion<VeterinariosViewModel>(),
+        };
 
         NavegarSeccionCommand = new RelayCommand(parametro => IrASeccion(parametro as string), _ => SesionActiva);
         CerrarSesionCommand = new RelayCommand(CerrarSesion, () => SesionActiva);
@@ -74,10 +83,7 @@ public class MainViewModel : BaseViewModel
         IrASeccion(Secciones[0].Titulo);
     }
 
-    /// <summary>
-    /// Marca la sección en el menú. Cada sección carga su vista con <see cref="INavigationService.NavegarASeccion{TViewModel}"/>
-    /// a medida que se implementan sus pantallas (Fases 11 a 14).
-    /// </summary>
+    /// <summary>Marca la sección en el menú y muestra su pantalla; sin pantalla, el área de contenido queda vacía.</summary>
     private void IrASeccion(string? titulo)
     {
         var seccion = Secciones.FirstOrDefault(s => s.Titulo == titulo);
@@ -92,6 +98,15 @@ public class MainViewModel : BaseViewModel
         }
 
         SeccionActual = seccion.Titulo;
+
+        if (_destinos.TryGetValue(seccion.Titulo, out var abrir))
+        {
+            abrir();
+        }
+        else
+        {
+            Navegacion.Limpiar();
+        }
     }
 
     private void CerrarSesion()

@@ -1,0 +1,41 @@
+<UserControl x:Class="VeterinariaDrFabio.App.Vistas.PropietarioEdicionView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <Border Style="{StaticResource Tarjeta}" Padding="32" MaxWidth="640" HorizontalAlignment="Left">
+            <StackPanel>
+                <TextBlock x:Name="TituloFormulario" Text="{Binding Titulo}" Style="{StaticResource TituloTexto}" Margin="0,0,0,24" />
+
+                <TextBlock Text="Nombre completo (obligatorio)" Style="{StaticResource EtiquetaTexto}" />
+                <TextBox x:Name="CampoNombre" Margin="0,4,0,16" Text="{Binding NombreCompleto, UpdateSourceTrigger=PropertyChanged}" />
+
+                <TextBlock Text="Teléfono celular (obligatorio)" Style="{StaticResource EtiquetaTexto}" />
+                <TextBox x:Name="CampoTelefono" Margin="0,4,0,4" MaxLength="12" Text="{Binding Telefono, UpdateSourceTrigger=PropertyChanged}" />
+                <TextBlock x:Name="ErrorTelefono" Text="{Binding ErrorTelefono}" Style="{StaticResource ErrorTexto}" TextWrapping="Wrap"
+                           Margin="0,0,0,12" Visibility="{Binding TieneErrorTelefono, Converter={StaticResource BoolAVisibilidad}}" />
+
+                <TextBlock Text="Documento" Style="{StaticResource EtiquetaTexto}" Margin="0,4,0,0" />
+                <TextBox x:Name="CampoDocumento" Margin="0,4,0,16" Text="{Binding Documento, UpdateSourceTrigger=PropertyChanged}" />
+
+                <TextBlock Text="Correo" Style="{StaticResource EtiquetaTexto}" />
+                <TextBox x:Name="CampoCorreo" Margin="0,4,0,16" Text="{Binding Correo, UpdateSourceTrigger=PropertyChanged}" />
+
+                <TextBlock Text="Dirección" Style="{StaticResource EtiquetaTexto}" />
+                <TextBox x:Name="CampoDireccion" Margin="0,4,0,16" Text="{Binding Direccion, UpdateSourceTrigger=PropertyChanged}" />
+
+                <TextBlock x:Name="MensajeError" Text="{Binding MensajeError}" Style="{StaticResource ErrorTexto}" TextWrapping="Wrap"
+                           Margin="0,0,0,12" Visibility="{Binding TieneError, Converter={StaticResource BoolAVisibilidad}}" />
+
+                <DockPanel Margin="0,8,0,0" LastChildFill="False">
+                    <Button DockPanel.Dock="Left" Content="Guardar" Style="{StaticResource BotonPrimario}" IsDefault="True"
+                            Command="{Binding GuardarCommand}" />
+                    <Button DockPanel.Dock="Left" Content="Cancelar" Style="{StaticResource BotonSecundario}" Margin="12,0,0,0"
+                            IsCancel="True" Command="{Binding CancelarCommand}" />
+                    <Button x:Name="BotonCambiarEstado" DockPanel.Dock="Right" Content="{Binding TextoCambiarEstado}"
+                            Style="{StaticResource BotonSecundario}" Command="{Binding CambiarEstadoCommand}"
+                            Visibility="{Binding EsEdicion, Converter={StaticResource BoolAVisibilidad}}" />
+                </DockPanel>
+            </StackPanel>
+        </Border>
+    </ScrollViewer>
+</UserControl>

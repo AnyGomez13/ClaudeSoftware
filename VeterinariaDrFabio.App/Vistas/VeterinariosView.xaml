@@ -1,0 +1,65 @@
+<UserControl x:Class="VeterinariaDrFabio.App.Vistas.VeterinariosView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="Auto" />
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <Button Grid.Row="0" Grid.Column="0" Content="Nuevo veterinario" Style="{StaticResource BotonPrimario}"
+                HorizontalAlignment="Left" Margin="0,0,0,16" Command="{Binding NuevoCommand}" />
+
+        <!-- Lista de veterinarios -->
+        <Border Grid.Row="1" Grid.Column="0" Style="{StaticResource Tarjeta}">
+            <DataGrid x:Name="TablaVeterinarios" ItemsSource="{Binding Veterinarios}">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="Nombre" Binding="{Binding NombreCompleto}" Width="2*" MinWidth="120" />
+                    <DataGridTextColumn Header="Registro profesional" Binding="{Binding RegistroProfesional}" Width="2*" MinWidth="170" />
+                    <DataGridTextColumn Header="Estado" Binding="{Binding Estado}" Width="*" MinWidth="80" />
+                    <DataGridTemplateColumn Header="" Width="110">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <Button Content="Editar" Style="{StaticResource BotonSecundario}" HorizontalAlignment="Right"
+                                        Command="{Binding DataContext.EditarCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
+                                        CommandParameter="{Binding}" />
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                </DataGrid.Columns>
+            </DataGrid>
+        </Border>
+
+        <!-- Panel de alta o edición -->
+        <Border x:Name="PanelFormulario" Grid.Row="1" Grid.Column="1" Style="{StaticResource Tarjeta}" Width="340" Padding="24"
+                Margin="16,0,0,0" VerticalAlignment="Top"
+                Visibility="{Binding EnEdicion, Converter={StaticResource BoolAVisibilidad}}">
+            <StackPanel>
+                <TextBlock x:Name="TituloFormulario" Text="{Binding TituloFormulario}" Style="{StaticResource TituloTexto}" FontSize="18"
+                           Margin="0,0,0,16" />
+
+                <TextBlock Text="Nombre completo (obligatorio)" Style="{StaticResource EtiquetaTexto}" />
+                <TextBox x:Name="CampoNombre" Margin="0,4,0,16" Text="{Binding NombreCompleto, UpdateSourceTrigger=PropertyChanged}" />
+
+                <TextBlock Text="Registro profesional" Style="{StaticResource EtiquetaTexto}" />
+                <TextBox x:Name="CampoRegistro" Margin="0,4,0,16" Text="{Binding RegistroProfesional, UpdateSourceTrigger=PropertyChanged}" />
+
+                <CheckBox x:Name="CampoActivo" Content="Activo" IsChecked="{Binding Activo}" Margin="0,0,0,16"
+                          Visibility="{Binding PuedeCambiarEstado, Converter={StaticResource BoolAVisibilidad}}" />
+
+                <TextBlock x:Name="MensajeError" Text="{Binding MensajeError}" Style="{StaticResource ErrorTexto}" TextWrapping="Wrap"
+                           Margin="0,0,0,12" Visibility="{Binding TieneError, Converter={StaticResource BoolAVisibilidad}}" />
+
+                <StackPanel Orientation="Horizontal">
+                    <Button Content="Guardar" Style="{StaticResource BotonPrimario}" IsDefault="True" Command="{Binding GuardarCommand}" />
+                    <Button Content="Cancelar" Style="{StaticResource BotonSecundario}" Margin="12,0,0,0" IsCancel="True"
+                            Command="{Binding CancelarCommand}" />
+                </StackPanel>
+            </StackPanel>
+        </Border>
+    </Grid>
+</UserControl>

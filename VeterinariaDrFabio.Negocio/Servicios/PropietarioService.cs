@@ -51,6 +51,10 @@ public partial class PropietarioService : IPropietarioService
         return Resultado.Ok();
     }
 
+    /// <summary>Indica si el texto es un celular colombiano: 10 dígitos que inicia en 3, sin prefijo (RN-14).</summary>
+    public static bool EsCelularColombiano(string? telefono) =>
+        !string.IsNullOrEmpty(telefono) && CelularColombiano().IsMatch(telefono);
+
     public List<Propietario> Buscar(string texto) => _propietarios.Buscar(texto);
 
     public Propietario? ObtenerPorId(int id) => _propietarios.ObtenerPorId(id);
@@ -70,7 +74,7 @@ public partial class PropietarioService : IPropietarioService
             return Resultado.Error("El teléfono del propietario es obligatorio.");
         }
 
-        if (!CelularColombiano().IsMatch(telefono))
+        if (!EsCelularColombiano(telefono))
         {
             return Resultado.Error("El teléfono debe ser un celular colombiano de 10 dígitos que inicia en 3 (ejemplo: 3001234567).");
         }

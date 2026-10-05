@@ -1,0 +1,82 @@
+<UserControl x:Class="VeterinariaDrFabio.App.Vistas.MascotaDetalleView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Grid>
+        <!-- La mascota ya no existe -->
+        <TextBlock x:Name="MensajeNoEncontrada" Text="La mascota no se encontró." Style="{StaticResource ErrorTexto}"
+                   Visibility="{Binding NoEncontrada, Converter={StaticResource BoolAVisibilidad}}" />
+
+        <Grid x:Name="Ficha" Visibility="{Binding Encontrada, Converter={StaticResource BoolAVisibilidad}}">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+
+            <!-- Cabecera: datos de la mascota, edad calculada y propietario -->
+            <Border Grid.Row="0" Style="{StaticResource Tarjeta}" Padding="24" Margin="0,0,0,24">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="2*" />
+                        <ColumnDefinition Width="24" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+
+                    <StackPanel Grid.Column="0">
+                        <TextBlock x:Name="TituloMascota" Text="{Binding Nombre, Mode=OneWay}" Style="{StaticResource TituloTexto}" />
+                        <Grid Margin="0,12,0,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Grid.Column="0">
+                                <TextBlock Margin="0,0,0,6"><Run Text="Especie: " Foreground="{StaticResource TextoSecundarioBrush}" /><Run x:Name="DatoEspecie" Text="{Binding Especie, Mode=OneWay}" /></TextBlock>
+                                <TextBlock Margin="0,0,0,6"><Run Text="Raza: " Foreground="{StaticResource TextoSecundarioBrush}" /><Run Text="{Binding Raza, Mode=OneWay}" /></TextBlock>
+                                <TextBlock Margin="0,0,0,6"><Run Text="Sexo: " Foreground="{StaticResource TextoSecundarioBrush}" /><Run Text="{Binding Sexo, Mode=OneWay}" /></TextBlock>
+                                <TextBlock><Run Text="Estado: " Foreground="{StaticResource TextoSecundarioBrush}" /><Run Text="{Binding Estado, Mode=OneWay}" /></TextBlock>
+                            </StackPanel>
+                            <StackPanel Grid.Column="1">
+                                <TextBlock Margin="0,0,0,6"><Run Text="Nacimiento: " Foreground="{StaticResource TextoSecundarioBrush}" /><Run Text="{Binding Nacimiento, Mode=OneWay}" /></TextBlock>
+                                <TextBlock Margin="0,0,0,6"><Run Text="Edad: " Foreground="{StaticResource TextoSecundarioBrush}" /><Run x:Name="DatoEdad" Text="{Binding Edad, Mode=OneWay}" FontWeight="SemiBold" /></TextBlock>
+                                <TextBlock Margin="0,0,0,6"><Run Text="Peso: " Foreground="{StaticResource TextoSecundarioBrush}" /><Run Text="{Binding Peso, Mode=OneWay}" /></TextBlock>
+                                <TextBlock><Run Text="Color o señas: " Foreground="{StaticResource TextoSecundarioBrush}" /><Run Text="{Binding ColorSenas, Mode=OneWay}" /></TextBlock>
+                            </StackPanel>
+                        </Grid>
+                    </StackPanel>
+
+                    <StackPanel Grid.Column="2">
+                        <TextBlock Text="Propietario" Style="{StaticResource EtiquetaTexto}" />
+                        <TextBlock x:Name="DatoPropietario" Text="{Binding PropietarioNombre, Mode=OneWay}" FontSize="16" FontWeight="SemiBold"
+                                   Foreground="{StaticResource TextoPrincipalBrush}" Margin="0,4,0,6" TextWrapping="Wrap" />
+                        <TextBlock><Run Text="Teléfono: " Foreground="{StaticResource TextoSecundarioBrush}" /><Run Text="{Binding PropietarioTelefono, Mode=OneWay}" /></TextBlock>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <TextBlock Grid.Row="1" Text="Historia clínica" Style="{StaticResource TituloTexto}" FontSize="18" Margin="0,0,0,12" />
+
+            <!-- Línea de tiempo cronológica de procedimientos y vacunaciones -->
+            <Border Grid.Row="2" Style="{StaticResource Tarjeta}">
+                <Grid>
+                    <DataGrid x:Name="TablaHistoria" ItemsSource="{Binding Registros}" RowHeight="NaN" MinRowHeight="44">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Fecha" Binding="{Binding Fecha, Mode=OneWay}" Width="110" />
+                            <DataGridTextColumn Header="Tipo" Binding="{Binding Tipo, Mode=OneWay}" Width="130" />
+                            <DataGridTemplateColumn Header="Detalle" Width="3*">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding Detalle, Mode=OneWay}" TextWrapping="Wrap" Margin="0,8" />
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                            <DataGridTextColumn Header="Veterinario" Binding="{Binding Veterinario, Mode=OneWay}" Width="*" MinWidth="110" />
+                        </DataGrid.Columns>
+                    </DataGrid>
+                    <TextBlock x:Name="MensajeSinRegistros" Text="Esta mascota aún no tiene registros clínicos." Style="{StaticResource EtiquetaTexto}"
+                               HorizontalAlignment="Center" VerticalAlignment="Center"
+                               Visibility="{Binding SinRegistros, Converter={StaticResource BoolAVisibilidad}}" />
+                </Grid>
+            </Border>
+        </Grid>
+    </Grid>
+</UserControl>

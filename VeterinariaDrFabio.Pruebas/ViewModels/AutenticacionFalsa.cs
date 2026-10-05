@@ -3,7 +3,7 @@ using VeterinariaDrFabio.Negocio.Servicios;
 namespace VeterinariaDrFabio.Pruebas.ViewModels;
 
 /// <summary>Autenticación de prueba: acepta una sola pareja de credenciales y recuerda cuántas veces se llamó.</summary>
-internal sealed class AutenticacionFalsa : IAutenticacionService
+public sealed class AutenticacionFalsa : IAutenticacionService
 {
     public const string UsuarioValido = "fabio";
     public const string ClaveValida = "Clave-Segura-1";

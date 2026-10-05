@@ -2,8 +2,30 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vistas="clr-namespace:VeterinariaDrFabio.App.Vistas"
+        xmlns:vm="clr-namespace:VeterinariaDrFabio.App.ViewModels"
         Title="Clínica Veterinaria Dr. Fabio" Height="720" Width="1180" MinHeight="680" MinWidth="1024"
         FontFamily="Segoe UI" Background="{StaticResource FondoBrush}">
+    <Window.Resources>
+        <!-- Cada ViewModel de pantalla se muestra con su vista -->
+        <DataTemplate DataType="{x:Type vm:PropietariosViewModel}">
+            <vistas:PropietariosView />
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type vm:PropietarioEdicionViewModel}">
+            <vistas:PropietarioEdicionView />
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type vm:MascotasViewModel}">
+            <vistas:MascotasView />
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type vm:MascotaEdicionViewModel}">
+            <vistas:MascotaEdicionView />
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type vm:MascotaDetalleViewModel}">
+            <vistas:MascotaDetalleView />
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type vm:VeterinariosViewModel}">
+            <vistas:VeterinariosView />
+        </DataTemplate>
+    </Window.Resources>
     <Grid Background="{StaticResource FondoBrush}">
         <!-- P-01 Login: visible mientras no haya sesión -->
         <Grid x:Name="VistaLogin" Visibility="{Binding MostrarLogin, Converter={StaticResource BoolAVisibilidad}}">
