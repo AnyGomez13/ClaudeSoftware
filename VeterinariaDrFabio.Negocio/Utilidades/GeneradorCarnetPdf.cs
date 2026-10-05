@@ -2,6 +2,7 @@ using System.Globalization;
 using QuestPDF.Fluent;
 using QuestPDF.Helpers;
 using QuestPDF.Infrastructure;
+using VeterinariaDrFabio.Dominio;
 using VeterinariaDrFabio.Dominio.Modelos;
 
 namespace VeterinariaDrFabio.Negocio.Utilidades;
@@ -61,7 +62,7 @@ public class GeneradorCarnetPdf
 
             pagina.Header().Column(columna =>
             {
-                columna.Item().Text("Clínica Veterinaria Dr. Fabio").FontSize(11).SemiBold().FontColor(ColorPrimario);
+                columna.Item().Text(Clinica.Nombre).FontSize(11).SemiBold().FontColor(ColorPrimario);
                 columna.Item().Text("Carnet de vacunación").FontSize(22).Bold();
                 columna.Item().PaddingTop(6).LineHorizontal(1).LineColor(ColorBorde);
             });

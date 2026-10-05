@@ -1,3 +1,4 @@
+using Microsoft.Extensions.DependencyInjection;
 using VeterinariaDrFabio.App.ViewModels;
 using VeterinariaDrFabio.Pruebas.Datos;
 
@@ -136,6 +137,36 @@ public class MascotaDetalleAccionesTests : PantallaTestBase
         var carnet = Assert.IsType<CarnetViewModel>(Navegacion.ViewModelActual);
         Assert.True(carnet.HayCarnet);
         Assert.Equal("Rocky", carnet.DatosMascota.Single(d => d.Etiqueta == "Nombre").Valor);
+    }
+
+    [Fact]
+    [Trait("Req", "RF-06")]
+    public void RF06_VolverRegresaALaListaDeMascotasConservandoLaBusqueda()
+    {
+        var ana = DatosDePrueba.CrearPropietario(Bd, "Ana Pérez", "3001234567");
+        DatosDePrueba.CrearMascota(Bd, ana.Id, "Rocky");
+        DatosDePrueba.CrearMascota(Bd, ana.Id, "Misu");
+        Navegacion.NavegarASeccion<MascotasViewModel>();
+        var lista = Assert.IsType<MascotasViewModel>(Navegacion.ViewModelActual);
+        lista.Texto = "Rock";
+        lista.AbrirFichaCommand.Execute(lista.Mascotas.Single());
+        var ficha = Assert.IsType<MascotaDetalleViewModel>(Navegacion.ViewModelActual);
+        Assert.True(ficha.VolverCommand.CanExecute(null));
+
+        ficha.VolverCommand.Execute(null);
+
+        Assert.Same(lista, Navegacion.ViewModelActual);
+        Assert.Equal("Rock", lista.Texto);
+        Assert.Equal(["Rocky"], lista.Mascotas.Select(f => f.Nombre).ToList());
+    }
+
+    [Fact]
+    [Trait("Req", "RF-06")]
+    public void RF06_SinHistorialElBotonVolverNoSeHabilita()
+    {
+        var ficha = Servicios.GetRequiredService<MascotaDetalleViewModel>();
+
+        Assert.False(ficha.VolverCommand.CanExecute(null));
     }
 
     [Fact]

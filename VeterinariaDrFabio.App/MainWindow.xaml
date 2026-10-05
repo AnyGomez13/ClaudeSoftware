@@ -3,7 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vistas="clr-namespace:VeterinariaDrFabio.App.Vistas"
         xmlns:vm="clr-namespace:VeterinariaDrFabio.App.ViewModels"
-        Title="Clínica Veterinaria Dr. Fabio" Height="720" Width="1180" MinHeight="680" MinWidth="1024"
+        Title="{Binding NombreSistema}" Height="720" Width="1180" MinHeight="680" MinWidth="1024"
         FontFamily="Segoe UI" Background="{StaticResource FondoBrush}">
     <Window.Resources>
         <!-- Cada ViewModel de pantalla se muestra con su vista -->
@@ -33,6 +33,9 @@
         </DataTemplate>
         <DataTemplate DataType="{x:Type vm:AlertasViewModel}">
             <vistas:AlertasView />
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type vm:ConfiguracionViewModel}">
+            <vistas:ConfiguracionView />
         </DataTemplate>
         <DataTemplate DataType="{x:Type vm:VeterinariosViewModel}">
             <vistas:VeterinariosView />

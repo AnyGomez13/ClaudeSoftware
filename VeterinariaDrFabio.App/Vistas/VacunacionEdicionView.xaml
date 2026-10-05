@@ -37,6 +37,9 @@
                         <TextBlock Text="Próxima fecha de refuerzo" Style="{StaticResource EtiquetaTexto}" />
                         <DatePicker x:Name="CampoProximaFecha" Height="36" Margin="0,4,0,0" VerticalContentAlignment="Center"
                                     SelectedDate="{Binding ProximaFecha, Mode=TwoWay}" />
+                        <TextBlock x:Name="SugerenciaRefuerzo" Text="{Binding SugerenciaRefuerzo, Mode=OneWay}" Style="{StaticResource EtiquetaTexto}"
+                                   FontSize="12" TextWrapping="Wrap" Margin="0,4,0,0"
+                                   Visibility="{Binding HaySugerenciaRefuerzo, Converter={StaticResource BoolAVisibilidad}}" />
                     </StackPanel>
                     <StackPanel Grid.Column="2" Margin="0,0,0,16">
                         <TextBlock Text="Lote o laboratorio" Style="{StaticResource EtiquetaTexto}" />

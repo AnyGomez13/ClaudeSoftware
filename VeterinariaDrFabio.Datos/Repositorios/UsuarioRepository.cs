@@ -18,6 +18,8 @@ public class UsuarioRepository : IUsuarioRepository
 
     public bool HayUsuarios() => _contexto.Usuarios.Any();
 
+    public void Actualizar(Usuario usuario) => _contexto.GuardarModificacion(usuario);
+
     public void Agregar(Usuario usuario)
     {
         _contexto.Usuarios.Add(usuario);

@@ -1,6 +1,7 @@
 using System.IO;
 using System.Runtime.InteropServices;
 using Microsoft.Extensions.DependencyInjection;
+using VeterinariaDrFabio.Dominio;
 using VeterinariaDrFabio.Negocio.Servicios;
 
 namespace VeterinariaDrFabio.App.Infraestructura;
@@ -35,7 +36,7 @@ internal static class ComandoCrearUsuario
         string clave;
         if (interactivo)
         {
-            Console.WriteLine("Creación del usuario de la Clínica Veterinaria Dr. Fabio");
+            Console.WriteLine($"Creación del usuario de {Clinica.Nombre}");
             Console.Write("Usuario: ");
             nombreUsuario = Console.ReadLine() ?? string.Empty;
             clave = LeerClave("Contraseña: ");

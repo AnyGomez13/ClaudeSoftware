@@ -20,7 +20,15 @@ Prioridad según `requisitosC.md`: Alta = Must, Media = Should (supuesto A-02 de
 | RF-13 | Alta (Must) | Carnet | `Neg/Utilidades/GeneradorCarnetPdf.cs`, `Neg/Servicios/CarnetService.cs`, `App/ViewModels/CarnetViewModel.cs` | 9, 14 |
 | RF-14 | Alta (Must) | Alertas | `Neg/Servicios/AlertaService.cs`, `App/ViewModels/AlertasViewModel.cs`, `App/Vistas/AlertasView.xaml` | 9, 14 |
 | RF-15 | Alta (Must) | Recordatorios | `Neg/Utilidades/GeneradorEnlaceWhatsApp.cs`, `Neg/Servicios/RecordatorioService.cs`, `Dat/Repositorios/RecordatorioRepository.cs`, `App/ViewModels/AlertasViewModel.cs` | 5, 9, 14 |
+| RF-11 (ampliado, CC-02) | Alta (Must) | Vacunación: listado y refuerzo propuesto | `Neg/Utilidades/CatalogoVacunas.cs`, `Neg/Utilidades/TextoComparable.cs`, `App/ViewModels/VacunacionEdicionViewModel.cs`, `App/Vistas/VacunacionEdicionView.xaml` | post-14 |
 | RF-16 | Media (Should) | Veterinarios | `Neg/Servicios/VeterinarioService.cs`, `Dat/Repositorios/VeterinarioRepository.cs`, `App/ViewModels/VeterinariosViewModel.cs`, `App/Vistas/VeterinariosView.xaml` | 6, 11 |
+
+## Requisito agregado a pedido del usuario (después de la Fase 14)
+| ID | Prior. | Módulo | Archivos | Fase |
+|---|---|---|---|---|
+| RF-17 — Cambiar la contraseña de la cuenta (CU-14, P-13) | Solicitado (post-diseño) | Configuración / autenticación | `Neg/Servicios/AutenticacionService.cs` (`CambiarContrasena`), `Dat/Repositorios/UsuarioRepository.cs` (`Actualizar`), `App/ViewModels/ConfiguracionViewModel.cs`, `App/Vistas/ConfiguracionView.xaml`, `App/ViewModels/MainViewModel.cs` (sección Configuración) | post-14 |
+| CC-01 — Nombre "Villa de San Carlos" | Solicitado | Transversal | `Dom/Clinica.cs` y sus usos en App y Negocio | post-14 |
+| CC-04 — Volver en la ficha de la mascota (P-07) | Solicitado | Mascotas | `App/ViewModels/MascotaDetalleViewModel.cs`, `App/Vistas/MascotaDetalleView.xaml` | post-14 |
 
 ## Requisitos no funcionales
 | ID | Prior. | Módulo | Archivos | Fase |

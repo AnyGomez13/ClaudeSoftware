@@ -11,6 +11,9 @@ public interface IUsuarioRepository
     /// <summary>Indica si ya existe alguna cuenta; el sistema tiene un único usuario (R-03).</summary>
     bool HayUsuarios();
 
+    /// <summary>Guarda los cambios de una cuenta existente, por ejemplo la nueva contraseña (CU-14).</summary>
+    void Actualizar(Usuario usuario);
+
     /// <summary>Registra un usuario; se usa en la puesta en marcha (SUP-07).</summary>
     void Agregar(Usuario usuario);
 }

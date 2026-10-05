@@ -1,7 +1,7 @@
 # CLAUDE.md — Sistema de Gestión para Clínica Veterinaria
 
 ## 1. Proyecto
-- Cliente: clínica veterinaria del Dr. Fabio (Piedecuesta, Santander); veterinarios Fabio y William.
+- Cliente: veterinaria "Villa de San Carlos" (Piedecuesta, Santander); veterinarios Fabio y William. El nombre está en `Clinica.Nombre`.
 - Producto: aplicación de escritorio Windows para historia clínica, vacunación, carnet PDF y recordatorios por WhatsApp.
 - Objetivo: control clínico y fidelización, simple de operar sin secretaria, a costo cero.
 - Fuentes de verdad: `requisitosC.md` (qué) y `disenoC.md` (cómo). Planificación: `fases.md`, `trazabilidad.md`.
@@ -71,7 +71,7 @@
 - Reportar con honestidad: si una prueba falla o un paso se omite, decirlo con la salida.
 
 ## 7. Reglas de UI
-- Implementar solo las pantallas P-01 a P-12 de la sección 4 de `disenoC.md`.
+- Implementar solo las pantallas P-01 a P-12 de la sección 4 de `disenoC.md` y P-13 Configuración (cambio de contraseña, pedido del usuario; ver `fases.md`).
 - Prohibido agregar pantallas, campos, botones o funciones que no estén ahí.
 - Usar la paleta de `disenoC.md` §4.2 en `Recursos/Colores.xaml` y la tipografía Segoe UI.
 - Layouts con `Grid` y `*` o `DockPanel`; ventana mínima 1024×680; sin posiciones fijas.
@@ -86,7 +86,7 @@
 - Ejecución: `dotnet run --project VeterinariaDrFabio.App`
 - Los comandos se ejecutan desde la raíz del repositorio.
 
-## 9. Índice de fases (detalle en `fases.md`)
+## 9. Índice de fases (detalle en `fases.md`; los cambios pedidos tras la Fase 14 están en su sección "Cambios solicitados")
 | Fase | Nombre | Estado |
 |---|---|---|
 | 1 | Solución, proyectos y tooling | terminada |

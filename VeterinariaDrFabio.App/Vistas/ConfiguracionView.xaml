@@ -1,0 +1,33 @@
+<UserControl x:Class="VeterinariaDrFabio.App.Vistas.ConfiguracionView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <Border Style="{StaticResource Tarjeta}" Padding="32" Width="460" HorizontalAlignment="Left" VerticalAlignment="Top">
+            <StackPanel>
+                <TextBlock Text="Cambiar contraseña" Style="{StaticResource TituloTexto}" FontSize="20" />
+                <TextBlock Margin="0,6,0,24" Style="{StaticResource EtiquetaTexto}" TextWrapping="Wrap">
+                    <Run Text="Usuario: " /><Run x:Name="NombreUsuario" Text="{Binding NombreUsuario, Mode=OneWay}" FontWeight="SemiBold"
+                                                 Foreground="{StaticResource TextoPrincipalBrush}" />
+                </TextBlock>
+
+                <TextBlock Text="Contraseña actual" Style="{StaticResource EtiquetaTexto}" />
+                <PasswordBox x:Name="CampoActual" Margin="0,4,0,16" PasswordChanged="CampoActual_PasswordChanged" />
+
+                <TextBlock Text="Contraseña nueva" Style="{StaticResource EtiquetaTexto}" />
+                <PasswordBox x:Name="CampoNueva" Margin="0,4,0,16" PasswordChanged="CampoNueva_PasswordChanged" />
+
+                <TextBlock Text="Repita la contraseña nueva" Style="{StaticResource EtiquetaTexto}" />
+                <PasswordBox x:Name="CampoConfirmacion" Margin="0,4,0,16" PasswordChanged="CampoConfirmacion_PasswordChanged" />
+
+                <TextBlock x:Name="MensajeError" Text="{Binding MensajeError, Mode=OneWay}" Style="{StaticResource ErrorTexto}" TextWrapping="Wrap"
+                           Margin="0,0,0,12" Visibility="{Binding TieneError, Converter={StaticResource BoolAVisibilidad}}" />
+                <TextBlock x:Name="MensajeExito" Text="{Binding MensajeExito, Mode=OneWay}" TextWrapping="Wrap" Margin="0,0,0,12"
+                           FontFamily="Segoe UI" FontSize="13" Foreground="{StaticResource ExitoBrush}"
+                           Visibility="{Binding TieneExito, Converter={StaticResource BoolAVisibilidad}}" />
+
+                <Button Content="Cambiar contraseña" Style="{StaticResource BotonPrimario}" HorizontalAlignment="Left" IsDefault="True"
+                        Command="{Binding CambiarContrasenaCommand}" />
+            </StackPanel>
+        </Border>
+    </ScrollViewer>
+</UserControl>

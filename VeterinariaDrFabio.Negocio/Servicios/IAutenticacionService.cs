@@ -18,6 +18,12 @@ public interface IAutenticacionService
     void CerrarSesion();
 
     /// <summary>
+    /// Cambia la contraseña de la cuenta con sesión iniciada (CU-14). Exige la contraseña actual correcta y una nueva
+    /// que no esté vacía y sea distinta de la actual; la nueva se guarda solo como hash con sal. La sesión sigue activa.
+    /// </summary>
+    Resultado CambiarContrasena(string contrasenaActual, string contrasenaNueva);
+
+    /// <summary>
     /// Crea la única cuenta del sistema en la puesta en marcha (SUP-07). Falla si ya existe un usuario
     /// (R-03) o si el nombre o la contraseña están vacíos. La contraseña se guarda solo como hash con sal.
     /// </summary>

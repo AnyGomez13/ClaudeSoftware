@@ -1,6 +1,6 @@
 # ClaudeSoftware — Sistema de Gestión para Clínica Veterinaria
 
-Software de escritorio para la gestión clínica de la veterinaria del **Dr. Fabio (Piedecuesta, Santander)**. Reemplaza el cuaderno manual con un registro digital de propietarios, mascotas, historia clínica y vacunación. Incluye un carnet de vacunación en PDF y recordatorios gratuitos por WhatsApp.
+Software de escritorio para la gestión clínica de la veterinaria **Villa de San Carlos (Piedecuesta, Santander)**. Reemplaza el cuaderno manual con un registro digital de propietarios, mascotas, historia clínica y vacunación. Incluye un carnet de vacunación en PDF y recordatorios gratuitos por WhatsApp.
 
 > **Estado del proyecto:** fases de **requisitos** y **diseño** terminadas. El repositorio todavía no contiene código fuente; la siguiente fase es el desarrollo, a partir de los documentos de este repositorio.
 

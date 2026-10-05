@@ -32,4 +32,15 @@ public sealed class AutenticacionFalsa : IAutenticacionService
     }
 
     public Resultado CrearUsuarioInicial(string nombreUsuario, string clave) => Resultado.Ok();
+
+    /// <summary>Resultado que devolverá <see cref="CambiarContrasena"/>; por defecto, éxito.</summary>
+    public Resultado ResultadoCambioContrasena { get; set; } = Resultado.Ok();
+
+    public List<(string Actual, string Nueva)> CambiosDeContrasena { get; } = [];
+
+    public Resultado CambiarContrasena(string contrasenaActual, string contrasenaNueva)
+    {
+        CambiosDeContrasena.Add((contrasenaActual, contrasenaNueva));
+        return ResultadoCambioContrasena;
+    }
 }

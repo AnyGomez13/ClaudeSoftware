@@ -1,8 +1,7 @@
-using System.Globalization;
-using System.Text;
 using VeterinariaDrFabio.Datos.Repositorios;
 using VeterinariaDrFabio.Dominio.Entidades;
 using VeterinariaDrFabio.Dominio.Modelos;
+using VeterinariaDrFabio.Negocio.Utilidades;
 
 namespace VeterinariaDrFabio.Negocio.Servicios;
 
@@ -54,9 +53,9 @@ public class AlertaService : IAlertaService
                 vacunasDeLaMascota[vacunacion.MascotaId] = aplicadas;
             }
 
-            var nombre = Comparable(vacunacion.NombreVacuna);
+            var nombre = TextoComparable.Normalizar(vacunacion.NombreVacuna);
             var reemplazada = aplicadas.Any(a =>
-                a.Id != vacunacion.Id && Comparable(a.NombreVacuna) == nombre && a.FechaAplicacion.Date > vacunacion.FechaAplicacion.Date);
+                a.Id != vacunacion.Id && TextoComparable.Normalizar(a.NombreVacuna) == nombre && a.FechaAplicacion.Date > vacunacion.FechaAplicacion.Date);
             if (reemplazada)
             {
                 continue;
@@ -116,12 +115,5 @@ public class AlertaService : IAlertaService
         };
 
     /// <summary>Un procedimiento genera alerta solo si su tipo es "desparasitación", sin importar tildes ni mayúsculas (A-09).</summary>
-    private static bool EsDesparasitacion(string tipoProcedimiento) => Comparable(tipoProcedimiento) == "desparasitacion";
-
-    private static string Comparable(string texto)
-    {
-        var descompuesto = texto.Trim().Normalize(NormalizationForm.FormD);
-        var sinTildes = descompuesto.Where(c => CharUnicodeInfo.GetUnicodeCategory(c) != UnicodeCategory.NonSpacingMark);
-        return new string(sinTildes.ToArray()).ToLowerInvariant();
-    }
+    private static bool EsDesparasitacion(string tipoProcedimiento) => TextoComparable.Normalizar(tipoProcedimiento) == "desparasitacion";
 }

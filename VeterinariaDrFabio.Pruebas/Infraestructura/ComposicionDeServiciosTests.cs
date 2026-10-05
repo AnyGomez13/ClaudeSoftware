@@ -34,6 +34,7 @@ public class ComposicionDeServiciosTests : PantallaTestBase
             typeof(VacunacionEdicionViewModel),
             typeof(CarnetViewModel),
             typeof(AlertasViewModel),
+            typeof(ConfiguracionViewModel),
             typeof(VeterinariosViewModel),
         ];
 

@@ -10,11 +10,15 @@
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
 
+            <Button x:Name="BotonVolver" Grid.Row="0" Content="← Volver" Style="{StaticResource BotonSecundario}" HorizontalAlignment="Left"
+                    Margin="0,0,0,16" Command="{Binding VolverCommand}" />
+
             <!-- Cabecera: datos de la mascota, edad calculada y propietario -->
-            <Border Grid.Row="0" Style="{StaticResource Tarjeta}" Padding="24" Margin="0,0,0,24">
+            <Border Grid.Row="1" Style="{StaticResource Tarjeta}" Padding="24" Margin="0,0,0,24">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="2*" />
@@ -53,7 +57,7 @@
                 </Grid>
             </Border>
 
-            <DockPanel Grid.Row="1" Margin="0,0,0,12">
+            <DockPanel Grid.Row="2" Margin="0,0,0,12">
                 <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
                     <Button x:Name="BotonNuevoProcedimiento" Content="Nuevo procedimiento" Style="{StaticResource BotonPrimario}"
                             Command="{Binding NuevoProcedimientoCommand}" />
@@ -66,7 +70,7 @@
             </DockPanel>
 
             <!-- Línea de tiempo cronológica de procedimientos y vacunaciones -->
-            <Border Grid.Row="2" Style="{StaticResource Tarjeta}">
+            <Border Grid.Row="3" Style="{StaticResource Tarjeta}">
                 <Grid>
                     <DataGrid x:Name="TablaHistoria" ItemsSource="{Binding Registros}" RowHeight="NaN" MinRowHeight="44">
                         <DataGrid.Columns>

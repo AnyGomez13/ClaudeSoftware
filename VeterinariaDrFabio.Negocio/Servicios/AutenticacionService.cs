@@ -5,7 +5,7 @@ using VeterinariaDrFabio.Negocio.Utilidades;
 namespace VeterinariaDrFabio.Negocio.Servicios;
 
 /// <inheritdoc cref="IAutenticacionService"/>
-/// RF-01, RNF-05, RN-01, RN-13, CU-01.
+/// RF-01, RF-17, RNF-05, RN-01, RN-13, CU-01, CU-14.
 public class AutenticacionService : IAutenticacionService
 {
     private readonly IUsuarioRepository _usuarios;
@@ -46,6 +46,40 @@ public class AutenticacionService : IAutenticacionService
     {
         SesionActiva = false;
         NombreUsuario = null;
+    }
+
+    public Resultado CambiarContrasena(string contrasenaActual, string contrasenaNueva)
+    {
+        if (!SesionActiva || NombreUsuario is null)
+        {
+            return Resultado.Error("Debe iniciar sesión para cambiar la contraseña.");
+        }
+
+        if (string.IsNullOrEmpty(contrasenaActual))
+        {
+            return Resultado.Error("Escriba la contraseña actual.");
+        }
+
+        if (string.IsNullOrEmpty(contrasenaNueva))
+        {
+            return Resultado.Error("Escriba la contraseña nueva.");
+        }
+
+        var usuario = _usuarios.ObtenerPorNombre(NombreUsuario);
+        if (usuario is null || !usuario.Activo || !_hasher.Verificar(contrasenaActual, usuario.ContrasenaHash, usuario.Salt))
+        {
+            return Resultado.Error("La contraseña actual no es correcta.");
+        }
+
+        if (contrasenaNueva == contrasenaActual)
+        {
+            return Resultado.Error("La contraseña nueva debe ser distinta de la actual.");
+        }
+
+        usuario.ContrasenaHash = _hasher.Hashear(contrasenaNueva, out var salt);
+        usuario.Salt = salt;
+        _usuarios.Actualizar(usuario);
+        return Resultado.Ok();
     }
 
     public Resultado CrearUsuarioInicial(string nombreUsuario, string clave)

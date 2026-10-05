@@ -122,6 +122,16 @@ Convenciones: `Dom` = `VeterinariaDrFabio.Dominio`, `Dat` = `VeterinariaDrFabio.
 - Criterio de terminado: `dotnet test` completo verde (suite del desarrollador); `dotnet format --verify-no-changes` limpio; `dotnet publish -c Release -r win-x64 --self-contained` genera un `.exe` que arranca, crea la BD en `%LocalAppData%\VeterinariaDrFabioeterinaria.db` y permite `--crear-usuario`; búsqueda en el código sin credenciales literales; revisión de que no existe ninguna pantalla fuera de P-01 a P-12.
 - Estado: pendiente
 
+## Cambios solicitados por el usuario después de la Fase 14
+Pedidos del cliente sobre lo ya construido. Los documentos fuente (`requisitosC.md`, `disenoC.md`) no se modificaron; estos cambios quedan registrados aquí y en `trazabilidad.md`.
+
+| ID | Cambio | Alcance | Estado |
+|---|---|---|---|
+| CC-01 | El nombre de la veterinaria es "Villa de San Carlos". | `Dom/Clinica.cs` (constante única) usada en el título de la ventana, el login, el menú lateral, el carnet en PDF, el mensaje de WhatsApp y la consola de `--crear-usuario`. | terminado |
+| CC-02 | Listado de vacunas con refuerzo propuesto según la vacuna, editable. | `Neg/Utilidades/CatalogoVacunas.cs`, `Neg/Utilidades/TextoComparable.cs`, `App/ViewModels/VacunacionEdicionViewModel.cs`, `App/Vistas/VacunacionEdicionView.xaml`. | terminado |
+| CC-03 | Pantalla de configuración para cambiar la contraseña (P-13, RF-17, CU-14). | `IAutenticacionService.CambiarContrasena`, `IUsuarioRepository.Actualizar`, `App/ViewModels/ConfiguracionViewModel.cs`, `App/Vistas/ConfiguracionView.xaml`, sección "Configuración" del menú. | terminado |
+| CC-04 | Botón para volver atrás en la ficha de la mascota. | `MascotaDetalleViewModel.VolverCommand`, botón "← Volver" en `MascotaDetalleView.xaml`. | terminado |
+
 ## Supuestos y contradicciones
 Contradicciones técnicas que bloqueen: ninguna.
 
@@ -200,3 +210,9 @@ Contradicciones técnicas que bloqueen: ninguna.
 | A-71 | P-11 resalta cada alerta con una insignia: roja "Vencida" (error) y ámbar "Próxima" (advertencia). "Enviar recordatorio" prepara el mensaje, abre el enlace de WhatsApp de inmediato y deja a la vista un panel con el mensaje, "Marcar como enviado" y "Cerrar". Si no se puede abrir el navegador se avisa y el mensaje queda en el panel para enviarlo a mano. Marcar como enviado quita la alerta de la lista. | Concreta CU-12 (§4.3: "muestra el mensaje armado y abre el enlace"); la insignia garantiza contraste en ambos colores. |
 | A-72 | Se agrega `IAbridorDeEnlaces` (`AbridorDeEnlaces`) en `App/Infraestructura`: abre solo direcciones http o https con el navegador predeterminado y rechaza cualquier otra (archivos, `javascript:`, correos). | Evita que una dirección armada con datos del usuario ejecute algo distinto de WhatsApp, y permite probar el envío sin abrir el navegador. |
 | A-73 | Se eliminó el texto provisional "Esta sección se habilita en las siguientes fases del desarrollo." (A-52): las cuatro secciones del menú ya tienen pantalla. | Cumple lo previsto en A-52. |
+| A-74 | El nombre "Villa de San Carlos" vive en `Clinica.Nombre` (Dominio) y se usa tal cual, sin prefijo como "Clínica" o "Veterinaria". Los nombres internos (solución `VeterinariaDrFabio`, carpeta de datos `%LocalAppData%\VeterinariaDrFabio`) no cambian. | Evita repetir el texto en siete lugares; renombrar la carpeta de datos dejaría sin acceso a la base ya creada. Si prefieres otro texto (por ejemplo "Veterinaria Villa de San Carlos") se cambia en un solo archivo. |
+| A-75 | Intervalos de refuerzo propuestos: Rabia, Triple canina, Séxtuple canina, Parvovirus, Moquillo, Leptospirosis, Triple felina y Leucemia felina a 12 meses; Bordetella a 6 meses. El listado se filtra por especie (perro, gato; con otra especie se ofrecen todas) y admite texto libre. **Son valores iniciales propuestos por el desarrollador y deben ser revisados por los veterinarios (Fabio y William).** | El diseño no tenía listado ni intervalos (SUP-10 decía "texto o selección simple"). En pantalla la fecha siempre se puede cambiar. Sustituye la lista de A-68. |
+| A-76 | Regla de la fecha de refuerzo: mientras el usuario no escriba la suya, se recalcula al cambiar la vacuna o la fecha de aplicación (aplicación + meses de la vacuna; una vacuna fuera del listado deja la fecha vacía). Desde que el usuario la cambia o la borra, ya no se sobrescribe. Sigue siendo opcional. | Es lo que hace ágil el registro sin pisar lo que el veterinario decidió. |
+| A-77 | Cambiar la contraseña exige la contraseña actual, una nueva no vacía y distinta de la actual, y repetirla igual. No hay longitud mínima ni reglas de complejidad (igual que al crearla con `--crear-usuario`, A-34). La sesión sigue abierta tras el cambio. Si se olvida la contraseña actual no hay forma de recuperarla desde la aplicación. | El pedido es "modificar la contraseña en caso de ser necesario"; una política de contraseñas no estaba solicitada. |
+| A-78 | "Configuración" es la quinta sección del menú lateral (P-13); el menú del diseño tenía cuatro. | Nueva pantalla pedida por el usuario; `CLAUDE.md` §7 la incluye como excepción a P-01..P-12. |
+| A-79 | La ficha (P-07) ahora tiene "← Volver", que regresa a la lista de mascotas conservando la búsqueda. Reemplaza lo dicho en A-62 ("la ficha no tiene botón Volver"). | Pedido del usuario. |

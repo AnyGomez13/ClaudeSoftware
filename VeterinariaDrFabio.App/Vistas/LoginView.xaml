@@ -5,7 +5,7 @@
         <Border Style="{StaticResource Tarjeta}" Width="380" Padding="32"
                 HorizontalAlignment="Center" VerticalAlignment="Center">
             <StackPanel>
-                <TextBlock Text="Clínica Veterinaria Dr. Fabio" Style="{StaticResource TituloTexto}"
+                <TextBlock x:Name="TituloClinica" Text="{Binding NombreClinica, Mode=OneWay}" Style="{StaticResource TituloTexto}"
                            TextWrapping="Wrap" TextAlignment="Center" />
                 <TextBlock Text="Inicio de sesión" Style="{StaticResource EtiquetaTexto}"
                            HorizontalAlignment="Center" Margin="0,4,0,24" />

@@ -10,6 +10,7 @@ using Microsoft.Extensions.DependencyInjection;
 using VeterinariaDrFabio.App;
 using VeterinariaDrFabio.App.ViewModels;
 using VeterinariaDrFabio.App.Vistas;
+using VeterinariaDrFabio.Dominio;
 using VeterinariaDrFabio.Pruebas.Datos;
 using VeterinariaDrFabio.Pruebas.ViewModels;
 
@@ -256,7 +257,7 @@ public class ShellUiTests
 
             Assert.Equal(Visibility.Collapsed, escena.Elemento("VistaLogin").Visibility);
             Assert.Equal(Visibility.Visible, escena.Elemento("VistaPrincipal").Visibility);
-            Assert.Equal(["Propietarios", "Mascotas", "Alertas", "Veterinarios"], TextosDeMenu(escena.Principal));
+            Assert.Equal(["Propietarios", "Mascotas", "Alertas", "Veterinarios", "Configuración"], TextosDeMenu(escena.Principal));
             Assert.Contains("Cerrar sesión", TextosDeBotones(escena.Principal));
             // Se excluye el botón de esquina que WPF agrega a cada DataGrid ("seleccionar todo", sin texto).
             var deshabilitados = Descendientes(escena.Principal).OfType<Button>()
@@ -265,7 +266,7 @@ public class ShellUiTests
                 .ToList();
             Assert.True(deshabilitados.Count == 0, "Botones deshabilitados: " + string.Join("; ", deshabilitados));
             var textos = Descendientes(escena.Principal).OfType<TextBlock>().Select(t => t.Text).ToList();
-            Assert.Contains("Clínica Veterinaria Dr. Fabio", textos);
+            Assert.Contains(Clinica.Nombre, textos);
             Assert.Contains(AutenticacionFalsa.UsuarioValido, textos);
             Assert.NotNull(escena.Vista<PropietariosView>());
         });
@@ -854,6 +855,143 @@ public class ShellUiTests
     }
 
     [Fact]
+    [Trait("Req", "RF-01")]
+    public void RF01_ElLoginYLaVentanaMuestranElNombreDeLaVeterinaria()
+    {
+        using var bd = new BaseDatosTemporal();
+        HiloUi.Ejecutar(() =>
+        {
+            var escena = CrearEscena(bd);
+
+            Assert.Equal("Villa de San Carlos", Texto(escena.VistaLogin, "TituloClinica"));
+            Assert.Equal("Villa de San Carlos", escena.Ventana.Title);
+            Assert.DoesNotContain("Dr. Fabio", Texto(escena.VistaLogin, "TituloClinica"));
+        });
+    }
+
+    [Fact]
+    [Trait("Req", "RF-06")]
+    public void RF06_LaFichaTieneBotonVolverQueRegresaALaListaConLaBusqueda()
+    {
+        using var bd = new BaseDatosTemporal();
+        SembrarPropietarios(bd);
+        HiloUi.Ejecutar(() =>
+        {
+            var escena = CrearEscena(bd);
+            escena.IniciarSesionDesdeElModelo();
+            escena.IrASeccion("Mascotas");
+            escena.Control<TextBox>(escena.Vista<MascotasView>(), "CampoBusqueda").Text = "Rock";
+            escena.Dibujar();
+            AbrirFichaDe(escena, "Rocky");
+
+            var volver = escena.Control<Button>(escena.Vista<MascotaDetalleView>(), "BotonVolver");
+            Assert.Equal("← Volver", volver.Content);
+            Assert.True(volver.IsEnabled);
+            volver.Command.Execute(null);
+            escena.Dibujar();
+
+            var lista = escena.Vista<MascotasView>();
+            Assert.Equal("Rock", escena.Control<TextBox>(lista, "CampoBusqueda").Text);
+            Assert.Single(escena.Control<DataGrid>(lista, "TablaMascotas").Items);
+        });
+    }
+
+    [Fact]
+    [Trait("Req", "RF-11")]
+    public void RF11_ElFormularioDeVacunaOfreceElListadoYProponeElRefuerzoSegunLaVacuna()
+    {
+        using var bd = new BaseDatosTemporal();
+        SembrarPropietarios(bd);
+        HiloUi.Ejecutar(() =>
+        {
+            var escena = CrearEscena(bd);
+            escena.IniciarSesionDesdeElModelo();
+            escena.IrASeccion("Mascotas");
+            AbrirFichaDe(escena, "Rocky");
+            escena.Boton(escena.Vista<MascotaDetalleView>(), "Registrar vacuna").Command.Execute(null);
+            escena.Dibujar();
+
+            var formulario = escena.Vista<VacunacionEdicionView>();
+            var vacuna = escena.Control<ComboBox>(formulario, "CampoVacuna");
+            var proxima = escena.Control<DatePicker>(formulario, "CampoProximaFecha");
+            var aviso = escena.Control<TextBlock>(formulario, "SugerenciaRefuerzo");
+            var nombres = vacuna.Items.Cast<string>().ToList();
+            Assert.Contains("Rabia", nombres);
+            Assert.Contains("Parvovirus", nombres);
+            Assert.DoesNotContain("Triple felina", nombres);
+            Assert.Null(proxima.SelectedDate);
+            Assert.Equal(Visibility.Collapsed, aviso.Visibility);
+
+            vacuna.Text = "Rabia";
+            escena.Dibujar();
+            Assert.Equal(DateTime.Today.AddMonths(12), proxima.SelectedDate);
+            Assert.Equal(Visibility.Visible, aviso.Visibility);
+            Assert.Contains("cada 12 meses", aviso.Text);
+
+            vacuna.Text = "Bordetella";
+            escena.Dibujar();
+            Assert.Equal(DateTime.Today.AddMonths(6), proxima.SelectedDate);
+            Assert.Contains("cada 6 meses", aviso.Text);
+
+            var elegida = DateTime.Today.AddMonths(2);
+            proxima.SelectedDate = elegida;
+            vacuna.Text = "Parvovirus";
+            escena.Dibujar();
+            Assert.Equal(elegida, proxima.SelectedDate);
+
+            vacuna.Text = "Giardia";
+            escena.Dibujar();
+            Assert.Equal(Visibility.Collapsed, aviso.Visibility);
+        });
+    }
+
+    [Fact]
+    [Trait("Req", "RF-17")]
+    public void RF17_ConfiguracionPermiteCambiarLaContrasenaYLimpiaLosCampos()
+    {
+        using var bd = new BaseDatosTemporal();
+        HiloUi.Ejecutar(() =>
+        {
+            var escena = CrearEscena(bd);
+            escena.IniciarSesionDesdeElModelo();
+
+            escena.IrASeccion("Configuración");
+
+            var vista = escena.Vista<ConfiguracionView>();
+            Assert.Equal(AutenticacionFalsa.UsuarioValido, Texto(vista, "NombreUsuario"));
+            var actual = escena.Control<PasswordBox>(vista, "CampoActual");
+            var nueva = escena.Control<PasswordBox>(vista, "CampoNueva");
+            var confirmacion = escena.Control<PasswordBox>(vista, "CampoConfirmacion");
+            var cambiar = escena.Boton(vista, "Cambiar contraseña");
+            Assert.False(cambiar.IsEnabled);
+            Assert.Equal(Visibility.Collapsed, escena.Control<TextBlock>(vista, "MensajeError").Visibility);
+            Assert.Equal(Visibility.Collapsed, escena.Control<TextBlock>(vista, "MensajeExito").Visibility);
+
+            actual.Password = AutenticacionFalsa.ClaveValida;
+            nueva.Password = "Nueva-2";
+            confirmacion.Password = "Otra-3";
+            escena.Dibujar();
+            Assert.True(cambiar.IsEnabled);
+            cambiar.Command.Execute(null);
+            escena.Dibujar();
+            Assert.Equal(Visibility.Visible, escena.Control<TextBlock>(vista, "MensajeError").Visibility);
+            Assert.Empty(escena.Autenticacion.CambiosDeContrasena);
+
+            confirmacion.Password = "Nueva-2";
+            cambiar.Command.Execute(null);
+            escena.Dibujar();
+
+            Assert.Equal([(AutenticacionFalsa.ClaveValida, "Nueva-2")], escena.Autenticacion.CambiosDeContrasena);
+            Assert.Equal(Visibility.Visible, escena.Control<TextBlock>(vista, "MensajeExito").Visibility);
+            Assert.Equal(Visibility.Collapsed, escena.Control<TextBlock>(vista, "MensajeError").Visibility);
+            Assert.Equal(string.Empty, actual.Password);
+            Assert.Equal(string.Empty, nueva.Password);
+            Assert.Equal(string.Empty, confirmacion.Password);
+            Assert.False(cambiar.IsEnabled);
+        });
+    }
+
+    [Fact]
     [Trait("Req", "RNF-01")]
     public void RNF01_LasVistasNoGeneranErroresDeBinding()
     {
@@ -908,6 +1046,9 @@ public class ShellUiTests
                 escena.Control<ComboBox>(formularioVacuna, "CampoVeterinario").SelectedIndex = 1;
                 escena.Control<ComboBox>(formularioVacuna, "CampoVacuna").Text = "Rabia";
                 escena.Dibujar();
+                escena.Control<DatePicker>(formularioVacuna, "CampoProximaFecha").SelectedDate = DateTime.Today.AddMonths(2);
+                escena.Control<ComboBox>(formularioVacuna, "CampoVacuna").Text = "Bordetella";
+                escena.Dibujar();
                 escena.Boton(formularioVacuna, "Guardar").Command.Execute(null);
                 escena.Dibujar();
                 ((MascotaDetalleViewModel)escena.Modelo.Navegacion.ViewModelActual!).Cargar(999);
@@ -947,6 +1088,15 @@ public class ShellUiTests
                 enviarAlerta.Command.Execute(enviarAlerta.CommandParameter);
                 escena.Dibujar();
                 escena.Boton(vistaAlertas, "Marcar como enviado").Command.Execute(null);
+                escena.Dibujar();
+
+                escena.IrASeccion("Configuración");
+                var configuracion = escena.Vista<ConfiguracionView>();
+                escena.Control<PasswordBox>(configuracion, "CampoActual").Password = "x";
+                escena.Control<PasswordBox>(configuracion, "CampoNueva").Password = "y";
+                escena.Control<PasswordBox>(configuracion, "CampoConfirmacion").Password = "z";
+                escena.Dibujar();
+                escena.Boton(configuracion, "Cambiar contraseña").Command.Execute(null);
                 escena.Dibujar();
 
                 escena.IrASeccion("Veterinarios");
@@ -1028,7 +1178,6 @@ public class ShellUiTests
             var formularioVacuna = escena.Vista<VacunacionEdicionView>();
             escena.Control<ComboBox>(formularioVacuna, "CampoVeterinario").SelectedIndex = 1;
             escena.Control<ComboBox>(formularioVacuna, "CampoVacuna").Text = "Parvovirus";
-            escena.Control<DatePicker>(formularioVacuna, "CampoProximaFecha").SelectedDate = DateTime.Today.AddYears(1);
             escena.Control<TextBox>(formularioVacuna, "CampoLote").Text = "L-2026-07";
             escena.Dibujar();
             GuardarPng(escena.Raiz, "muestra-vacuna-form.png");
@@ -1060,6 +1209,15 @@ public class ShellUiTests
             enviarAlerta.Command.Execute(enviarAlerta.CommandParameter);
             escena.Dibujar();
             GuardarPng(escena.Raiz, "muestra-alertas-recordatorio.png");
+
+            escena.IrASeccion("Configuración");
+            var configuracion = escena.Vista<ConfiguracionView>();
+            escena.Control<PasswordBox>(configuracion, "CampoActual").Password = "x";
+            escena.Control<PasswordBox>(configuracion, "CampoNueva").Password = "y";
+            escena.Control<PasswordBox>(configuracion, "CampoConfirmacion").Password = "z";
+            escena.Boton(configuracion, "Cambiar contraseña").Command.Execute(null);
+            escena.Dibujar();
+            GuardarPng(escena.Raiz, "muestra-configuracion.png");
 
             escena.IrASeccion("Veterinarios");
             var veterinarios = escena.Vista<VeterinariosView>();

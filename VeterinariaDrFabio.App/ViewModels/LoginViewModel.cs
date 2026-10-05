@@ -1,4 +1,5 @@
 using VeterinariaDrFabio.App.Infraestructura;
+using VeterinariaDrFabio.Dominio;
 using VeterinariaDrFabio.Negocio.Servicios;
 
 namespace VeterinariaDrFabio.App.ViewModels;
@@ -21,6 +22,9 @@ public class LoginViewModel : BaseViewModel
 
     /// <summary>Se dispara cuando las credenciales son válidas y la sesión queda iniciada.</summary>
     public event Action? SesionIniciada;
+
+    /// <summary>Nombre de la veterinaria que se muestra como título del login.</summary>
+    public string NombreClinica => Clinica.Nombre;
 
     public RelayCommand IniciarSesionCommand { get; }
 

@@ -36,7 +36,11 @@ public class MascotaDetalleViewModel : BaseViewModel
         NuevoProcedimientoCommand = new RelayCommand(NuevoProcedimiento, () => Encontrada);
         RegistrarVacunaCommand = new RelayCommand(RegistrarVacuna, () => Encontrada);
         GenerarCarnetCommand = new RelayCommand(GenerarCarnet, () => Encontrada);
+        VolverCommand = new RelayCommand(_navegacion.Volver, () => _navegacion.PuedeVolver);
     }
+
+    /// <summary>Regresa a la lista de mascotas conservando la búsqueda que había.</summary>
+    public RelayCommand VolverCommand { get; }
 
     /// <summary>Abre la vista previa del carnet de vacunación (P-10) de esta mascota.</summary>
     public RelayCommand GenerarCarnetCommand { get; }
@@ -189,7 +193,7 @@ public class MascotaDetalleViewModel : BaseViewModel
         _navegacion.NavegarA<ProcedimientoEdicionViewModel>(vm => vm.Nuevo(_mascotaId, Nombre, AlTerminarRegistro));
 
     private void RegistrarVacuna() =>
-        _navegacion.NavegarA<VacunacionEdicionViewModel>(vm => vm.Nueva(_mascotaId, Nombre, AlTerminarRegistro));
+        _navegacion.NavegarA<VacunacionEdicionViewModel>(vm => vm.Nueva(_mascotaId, Nombre, AlTerminarRegistro, Especie));
 
     private void GenerarCarnet() =>
         _navegacion.NavegarA<CarnetViewModel>(vm => vm.Cargar(_mascotaId));

@@ -1,11 +1,12 @@
 using VeterinariaDrFabio.App.Infraestructura;
+using VeterinariaDrFabio.Dominio;
 using VeterinariaDrFabio.Negocio.Servicios;
 
 namespace VeterinariaDrFabio.App.ViewModels;
 
 /// <summary>
 /// Shell principal (P-02): muestra el login mientras no haya sesión y, después, el menú lateral
-/// Propietarios · Mascotas · Alertas · Veterinarios con el área de contenido (RF-01, RN-13).
+/// Propietarios · Mascotas · Alertas · Veterinarios · Configuración con el área de contenido (RF-01, RF-17, RN-13).
 /// </summary>
 public class MainViewModel : BaseViewModel
 {
@@ -25,6 +26,7 @@ public class MainViewModel : BaseViewModel
             new ItemMenu("Mascotas"),
             new ItemMenu("Alertas"),
             new ItemMenu("Veterinarios"),
+            new ItemMenu("Configuración"),
         ];
 
         // Cada sección del menú abre su pantalla.
@@ -34,6 +36,7 @@ public class MainViewModel : BaseViewModel
             ["Mascotas"] = () => Navegacion.NavegarASeccion<MascotasViewModel>(),
             ["Alertas"] = () => Navegacion.NavegarASeccion<AlertasViewModel>(),
             ["Veterinarios"] = () => Navegacion.NavegarASeccion<VeterinariosViewModel>(),
+            ["Configuración"] = () => Navegacion.NavegarASeccion<ConfiguracionViewModel>(),
         };
 
         NavegarSeccionCommand = new RelayCommand(parametro => IrASeccion(parametro as string), _ => SesionActiva);
@@ -41,7 +44,7 @@ public class MainViewModel : BaseViewModel
         Login.SesionIniciada += OnSesionIniciada;
     }
 
-    public string NombreSistema => "Clínica Veterinaria Dr. Fabio";
+    public string NombreSistema => Clinica.Nombre;
 
     public LoginViewModel Login { get; }
 

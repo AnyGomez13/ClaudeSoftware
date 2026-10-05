@@ -1,12 +1,14 @@
 using VeterinariaDrFabio.App.Infraestructura;
 using VeterinariaDrFabio.Dominio.Entidades;
 using VeterinariaDrFabio.Negocio.Servicios;
+using VeterinariaDrFabio.Negocio.Utilidades;
 
 namespace VeterinariaDrFabio.App.ViewModels;
 
 /// <summary>
 /// Pantalla P-09: registro de una vacunación desde la ficha de la mascota. Con próxima fecha de refuerzo alimenta las
 /// alertas y el carnet; el veterinario que la aplicó es obligatorio (RF-11, RN-07, RN-08, RNF-01, CU-09).
+/// Al elegir una vacuna del listado propone la fecha del refuerzo según la vacuna, y esa fecha se puede cambiar.
 /// </summary>
 public class VacunacionEdicionViewModel : BaseViewModel
 {
@@ -20,6 +22,8 @@ public class VacunacionEdicionViewModel : BaseViewModel
     private string _nombreVacuna = string.Empty;
     private DateTime? _fechaAplicacion;
     private DateTime? _proximaFecha;
+    private bool _proximaFechaEscritaPorElUsuario;
+    private IReadOnlyList<string> _vacunasSugeridas = [];
     private string _lote = string.Empty;
     private string _observaciones = string.Empty;
     private string _mensajeError = string.Empty;
@@ -36,8 +40,20 @@ public class VacunacionEdicionViewModel : BaseViewModel
 
     public RelayCommand CancelarCommand { get; }
 
-    /// <summary>Sugerencias de vacuna; el campo admite texto libre y no hay catálogo cerrado (SUP-10, SUP-D11).</summary>
-    public IReadOnlyList<string> VacunasSugeridas { get; } = ["Rabia", "Parvovirus", "Moquillo", "Triple canina", "Triple felina"];
+    /// <summary>Vacunas del listado para la especie de la mascota; el campo también admite texto libre (SUP-10, SUP-D11).</summary>
+    public IReadOnlyList<string> VacunasSugeridas
+    {
+        get => _vacunasSugeridas;
+        private set => SetProperty(ref _vacunasSugeridas, value);
+    }
+
+    /// <summary>Aviso bajo la fecha del refuerzo cuando la vacuna elegida está en el listado; vacío en caso contrario.</summary>
+    public string SugerenciaRefuerzo =>
+        CatalogoVacunas.Buscar(NombreVacuna) is { } vacuna
+            ? $"Refuerzo habitual de esta vacuna: cada {vacuna.MesesRefuerzo} meses. Puede cambiar la fecha."
+            : string.Empty;
+
+    public bool HaySugerenciaRefuerzo => SugerenciaRefuerzo.Length > 0;
 
     /// <summary>Una vacunación registra un acto ya realizado: no se admiten fechas futuras.</summary>
     public DateTime FechaMaxima => DateTime.Today;
@@ -70,6 +86,9 @@ public class VacunacionEdicionViewModel : BaseViewModel
             if (SetProperty(ref _nombreVacuna, value))
             {
                 GuardarCommand.RaiseCanExecuteChanged();
+                OnPropertyChanged(nameof(SugerenciaRefuerzo));
+                OnPropertyChanged(nameof(HaySugerenciaRefuerzo));
+                ProponerRefuerzo();
             }
         }
     }
@@ -82,15 +101,25 @@ public class VacunacionEdicionViewModel : BaseViewModel
             if (SetProperty(ref _fechaAplicacion, value))
             {
                 GuardarCommand.RaiseCanExecuteChanged();
+                ProponerRefuerzo();
             }
         }
     }
 
-    /// <summary>Fecha del próximo refuerzo; opcional. Si se informa, la vacuna aparece en las alertas (RF-14).</summary>
+    /// <summary>
+    /// Fecha del próximo refuerzo; opcional. Si se informa, la vacuna aparece en las alertas (RF-14).
+    /// Lo que escribe el usuario manda: desde entonces ya no se vuelve a proponer una fecha automática.
+    /// </summary>
     public DateTime? ProximaFecha
     {
         get => _proximaFecha;
-        set => SetProperty(ref _proximaFecha, value);
+        set
+        {
+            if (SetProperty(ref _proximaFecha, value))
+            {
+                _proximaFechaEscritaPorElUsuario = true;
+            }
+        }
     }
 
     /// <summary>Lote o laboratorio de la vacuna; opcional.</summary>
@@ -123,21 +152,42 @@ public class VacunacionEdicionViewModel : BaseViewModel
 
     /// <summary>Prepara el formulario vacío para registrar una vacunación de la mascota; la fecha parte en hoy.</summary>
     /// <param name="alTerminar">Se invoca con verdadero si se guardó y con falso si se canceló.</param>
-    public void Nueva(int mascotaId, string mascotaNombre, Action<bool>? alTerminar)
+    /// <param name="especie">Especie de la mascota; con ella se ofrecen solo las vacunas que le corresponden.</param>
+    public void Nueva(int mascotaId, string mascotaNombre, Action<bool>? alTerminar, string? especie = null)
     {
         _alTerminar = alTerminar;
         _mascotaId = mascotaId;
         _mascotaNombre = mascotaNombre;
+        _proximaFechaEscritaPorElUsuario = false;
         OnPropertyChanged(nameof(Titulo));
+        VacunasSugeridas = CatalogoVacunas.ParaEspecie(especie).Select(v => v.Nombre).ToList();
 
         Veterinarios = _veterinarios.ListarActivos().Select(v => new VeterinarioOpcion(v)).ToList();
         VeterinarioSeleccionado = null;
         NombreVacuna = string.Empty;
         FechaAplicacion = DateTime.Today;
-        ProximaFecha = null;
+        _proximaFecha = null;
+        OnPropertyChanged(nameof(ProximaFecha));
+        _proximaFechaEscritaPorElUsuario = false;
         Lote = string.Empty;
         Observaciones = string.Empty;
         MensajeError = string.Empty;
+    }
+
+    /// <summary>Propone la fecha del refuerzo según la vacuna y la fecha de aplicación, mientras el usuario no haya escrito la suya.</summary>
+    private void ProponerRefuerzo()
+    {
+        if (_proximaFechaEscritaPorElUsuario)
+        {
+            return;
+        }
+
+        var propuesta = FechaAplicacion is { } aplicacion ? CatalogoVacunas.CalcularRefuerzo(NombreVacuna, aplicacion) : null;
+        if (SetProperty(ref _proximaFecha, propuesta, nameof(ProximaFecha)))
+        {
+            // Una propuesta automática no cuenta como fecha escrita por el usuario.
+            _proximaFechaEscritaPorElUsuario = false;
+        }
     }
 
     private bool PuedeGuardar() =>

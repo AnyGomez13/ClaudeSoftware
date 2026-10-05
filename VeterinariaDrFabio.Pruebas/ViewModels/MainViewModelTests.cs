@@ -35,9 +35,31 @@ public class MainViewModelTests : PantallaTestBase
 
     [Fact]
     [Trait("Req", "RF-01")]
-    public void RF01_ElMenuTieneLasCuatroSeccionesDelDiseno()
+    public void RF01_ElMenuTieneLasSeccionesDelDisenoMasConfiguracion()
     {
-        Assert.Equal(["Propietarios", "Mascotas", "Alertas", "Veterinarios"], _modelo.Secciones.Select(s => s.Titulo).ToList());
+        Assert.Equal(
+            ["Propietarios", "Mascotas", "Alertas", "Veterinarios", "Configuración"],
+            _modelo.Secciones.Select(s => s.Titulo).ToList());
+    }
+
+    [Fact]
+    [Trait("Req", "RF-17")]
+    public void RF17_ConfiguracionAbreLaPantallaDeCambioDeContrasena()
+    {
+        IniciarSesion();
+
+        _modelo.NavegarSeccionCommand.Execute("Configuración");
+
+        Assert.Equal("Configuración", _modelo.SeccionActual);
+        Assert.IsType<ConfiguracionViewModel>(_modelo.Navegacion.ViewModelActual);
+    }
+
+    [Fact]
+    [Trait("Req", "RF-01")]
+    public void RF01_ElShellMuestraElNombreDeLaVeterinaria()
+    {
+        Assert.Equal("Villa de San Carlos", _modelo.NombreSistema);
+        Assert.Equal("Villa de San Carlos", _modelo.Login.NombreClinica);
     }
 
     [Fact]

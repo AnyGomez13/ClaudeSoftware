@@ -1,5 +1,6 @@
 using System.Globalization;
 using VeterinariaDrFabio.Datos.Repositorios;
+using VeterinariaDrFabio.Dominio;
 using VeterinariaDrFabio.Dominio.Entidades;
 using VeterinariaDrFabio.Dominio.Modelos;
 using VeterinariaDrFabio.Negocio.Utilidades;
@@ -98,7 +99,7 @@ public class RecordatorioService : IRecordatorioService
             : "la desparasitación";
         var verbo = alerta.Vencida ? "le correspondía" : "le corresponde";
 
-        return $"Hola {alerta.PropietarioNombre}, le saludamos de la Clínica Veterinaria Dr. Fabio. " +
+        return $"Hola {alerta.PropietarioNombre}, le saludamos de {Clinica.Nombre}. " +
                $"Le recordamos que a {alerta.MascotaNombre} {verbo} {motivo} el {fecha}. Lo esperamos en la clínica.";
     }
 }

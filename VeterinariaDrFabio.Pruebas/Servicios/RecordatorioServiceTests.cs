@@ -1,4 +1,5 @@
 using VeterinariaDrFabio.Datos.Repositorios;
+using VeterinariaDrFabio.Dominio;
 using VeterinariaDrFabio.Dominio.Entidades;
 using VeterinariaDrFabio.Dominio.Modelos;
 using VeterinariaDrFabio.Negocio.Servicios;
@@ -66,6 +67,8 @@ public class RecordatorioServiceTests : IDisposable
         Assert.Contains("Ana Pérez", recordatorio.Mensaje);
         Assert.Contains("Rocky", recordatorio.Mensaje);
         Assert.Contains("vacuna Rabia", recordatorio.Mensaje);
+        Assert.Contains($"le saludamos de {Clinica.Nombre}.", recordatorio.Mensaje);
+        Assert.DoesNotContain("Dr. Fabio", recordatorio.Mensaje);
         Assert.Contains(alerta.FechaObjetivo.ToString("dd/MM/yyyy"), recordatorio.Mensaje);
         Assert.Equal(1, ContarRecordatorios());
     }

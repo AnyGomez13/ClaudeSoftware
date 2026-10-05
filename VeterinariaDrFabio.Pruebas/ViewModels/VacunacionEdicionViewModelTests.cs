@@ -99,10 +99,26 @@ public class VacunacionEdicionViewModelTests : PantallaTestBase
 
     [Fact]
     [Trait("Req", "RF-11")]
-    public void RF11_ElRefuerzoEsOpcional()
+    public void RF11_ElRefuerzoEsOpcionalAunqueSeHayaPropuestoUnaFecha()
     {
         var pantalla = Nueva();
         LlenarFormularioValido(pantalla);
+        Assert.NotNull(pantalla.ProximaFecha);
+
+        pantalla.ProximaFecha = null;
+        pantalla.GuardarCommand.Execute(null);
+
+        Assert.Equal([true], _terminaciones);
+        Assert.Null(Guardada().ProximaFecha);
+    }
+
+    [Fact]
+    [Trait("Req", "RF-11")]
+    public void RF11_UnaVacunaFueraDelListadoSeGuardaSinRefuerzoSiNoSeEscribe()
+    {
+        var pantalla = Nueva();
+        LlenarFormularioValido(pantalla);
+        pantalla.NombreVacuna = "Giardia";
 
         pantalla.GuardarCommand.Execute(null);
 
@@ -116,11 +132,11 @@ public class VacunacionEdicionViewModelTests : PantallaTestBase
     {
         var pantalla = Nueva();
         LlenarFormularioValido(pantalla);
-        pantalla.NombreVacuna = "Bordetella";
+        pantalla.NombreVacuna = "Giardia";
 
         pantalla.GuardarCommand.Execute(null);
 
-        Assert.Equal("Bordetella", Guardada().NombreVacuna);
+        Assert.Equal("Giardia", Guardada().NombreVacuna);
     }
 
     [Fact]
