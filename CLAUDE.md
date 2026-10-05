@@ -94,7 +94,7 @@
 | 3 | Datos: DbContext, DDL y migración inicial | terminada |
 | 4 | Repositorios | terminada |
 | 5 | Utilidades: edad, hash y enlace WhatsApp | terminada |
-| 6 | Autenticación, veterinarios y usuario inicial | pendiente |
+| 6 | Autenticación, veterinarios y usuario inicial | terminada |
 | 7 | Servicios de propietario y mascota | pendiente |
 | 8 | Servicios de procedimiento, vacunación e historia clínica | pendiente |
 | 9 | Carnet PDF, alertas y recordatorios | pendiente |

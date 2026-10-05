@@ -16,6 +16,8 @@ public class UsuarioRepository : IUsuarioRepository
     public Usuario? ObtenerPorNombre(string nombreUsuario) =>
         _contexto.Usuarios.FirstOrDefault(u => u.NombreUsuario == nombreUsuario);
 
+    public bool HayUsuarios() => _contexto.Usuarios.Any();
+
     public void Agregar(Usuario usuario)
     {
         _contexto.Usuarios.Add(usuario);

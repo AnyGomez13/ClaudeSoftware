@@ -48,7 +48,7 @@ Convenciones: `Dom` = `VeterinariaDrFabio.Dominio`, `Dat` = `VeterinariaDrFabio.
 - Dependencias: Fases 4 y 5.
 - Cubre: RF-01, RF-16, RNF-05, RN-01, RN-13, CU-01, CU-13, SUP-06, SUP-07, SUP-D12.
 - Criterio de terminado: pruebas verdes: credenciales válidas ok, inválidas rechazadas, usuario inactivo rechazado, cierre de sesión limpia el estado, veterinarios pre-registrados listados y alta de uno nuevo; `grep -rniE "password|contrasena\s*=\s*\"" --include=*.cs` sin credenciales literales fuera de pruebas; `App.exe --crear-usuario` crea un `Usuario` con hash y sal.
-- Estado: pendiente
+- Estado: terminada
 
 ## Fase 7 — Servicios de propietario y mascota
 - Objetivo: reglas de negocio de propietarios y mascotas.
@@ -158,3 +158,8 @@ Contradicciones técnicas que bloqueen: ninguna.
 | A-29 | `CalculadoraEdad` agrega sobrecargas con la fecha de referencia (`EnMeses(nacimiento, hoy)`, `Legible(nacimiento, hoy)`) además de las firmas del diseño. | Permite probar casos de borde sin depender del reloj; las firmas originales usan `DateTime.Today`. |
 | A-30 | Un mes se cumple el mismo día del mes, o el último día si ese día no existe (31 de enero, 29 de febrero). Una fecha de nacimiento futura lanza `ArgumentOutOfRangeException`; la Fase 7 debe rechazarla antes de calcular. | El diseño no define el cálculo; evita edades negativas o "Menos de 1 mes" para una mascota que no ha nacido. |
 | A-31 | `GeneradorEnlaceWhatsApp.Construir` lanza `ArgumentException` si el teléfono no cumple `3` + 9 dígitos o el mensaje está vacío; el texto del mensaje lo arma `RecordatorioService` (Fase 9). | La utilidad solo codifica; el diseño le pasa el mensaje ya escrito (`Construir(telefono, mensaje)`). |
+| A-32 | `Resultado` (éxito y mensaje) se define en `Neg/Servicios/Resultado.cs`. | Las interfaces de §3.2 devuelven `Resultado` pero el diseño no lo declara. |
+| A-33 | `IAutenticacionService` agrega `SesionActiva`, `NombreUsuario` y `CrearUsuarioInicial`; `IUsuarioRepository` agrega `HayUsuarios`; `IVeterinarioService` agrega `ListarTodos` y `Editar`. | Hacen falta para que sin sesión no haya acceso (RN-13), para `--crear-usuario` con un único usuario (R-03) y para P-12. |
+| A-34 | `--crear-usuario` sin más argumentos pide usuario y contraseña (dos veces) en una consola propia; con `--crear-usuario <usuario> <contraseña>` actúa sin interacción para scripts. No exige longitud mínima de contraseña. | Concreta A-06 sin agregar pantallas; los requisitos no definen política de contraseñas. |
+| A-35 | Provisional hasta la Fase 10: `DbContext`, repositorios y servicios se registran como transitorios (un contexto por resolución) y `AutenticacionService` como único. | La sesión debe vivir mientras la app esté abierta; un contexto por resolución evita que un error al guardar contamine a los demás. |
+| A-36 | La app crea o migra la BD en cada arranque (`Database.Migrate()`), incluido el de `--crear-usuario`. | El primer arranque debe crear `veterinaria.db` sin pasos manuales (RNF-03). |
