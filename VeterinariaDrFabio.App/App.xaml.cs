@@ -47,6 +47,8 @@ public partial class App : Application
         servicios.AddTransient<IVeterinarioRepository, VeterinarioRepository>();
         servicios.AddTransient<IPropietarioRepository, PropietarioRepository>();
         servicios.AddTransient<IMascotaRepository, MascotaRepository>();
+        servicios.AddTransient<IProcedimientoRepository, ProcedimientoRepository>();
+        servicios.AddTransient<IVacunacionRepository, VacunacionRepository>();
 
         servicios.AddTransient<HasherContrasena>();
         servicios.AddTransient<CalculadoraEdad>();
@@ -56,6 +58,8 @@ public partial class App : Application
         servicios.AddTransient<IVeterinarioService, VeterinarioService>();
         servicios.AddTransient<IPropietarioService, PropietarioService>();
         servicios.AddTransient<IMascotaService, MascotaService>();
+        servicios.AddTransient<IProcedimientoService, ProcedimientoService>();
+        servicios.AddTransient<IVacunacionService, VacunacionService>();
 
         // Los demás repositorios, servicios y ViewModels se registran en las fases siguientes.
         servicios.AddTransient<MainWindow>();

@@ -1,4 +1,5 @@
 using VeterinariaDrFabio.Dominio.Entidades;
+using VeterinariaDrFabio.Dominio.Modelos;
 
 namespace VeterinariaDrFabio.Negocio.Servicios;
 
@@ -19,6 +20,12 @@ public interface IMascotaService
 
     /// <summary>Devuelve la mascota con su propietario o nulo si no existe.</summary>
     Mascota? ObtenerPorId(int id);
+
+    /// <summary>
+    /// Historia clínica de la mascota: procedimientos y vacunaciones en orden cronológico ascendente, cada uno con
+    /// su veterinario (RF-06, RF-10, RN-07, RN-08). Devuelve nulo si la mascota no existe.
+    /// </summary>
+    HistoriaClinica? ObtenerHistoriaClinica(int mascotaId);
 
     /// <summary>Edad en meses cumplidos, calculada con la fecha actual y nunca guardada (RF-08).</summary>
     int CalcularEdadMeses(Mascota mascota);

@@ -1,24 +1,32 @@
+using System.Globalization;
 using VeterinariaDrFabio.Datos.Repositorios;
 using VeterinariaDrFabio.Dominio.Entidades;
+using VeterinariaDrFabio.Dominio.Modelos;
 using VeterinariaDrFabio.Negocio.Utilidades;
 
 namespace VeterinariaDrFabio.Negocio.Servicios;
 
 /// <inheritdoc cref="IMascotaService"/>
-/// RF-05, RF-07, RF-08, RN-02, RN-03, RN-06, SUP-04, SUP-08, CU-05, CU-07.
+/// RF-05, RF-06, RF-07, RF-08, RF-10, RN-02, RN-03, RN-06, RN-08, SUP-04, SUP-08, CU-05, CU-06, CU-07.
 public class MascotaService : IMascotaService
 {
     private readonly IMascotaRepository _mascotas;
     private readonly IPropietarioRepository _propietarios;
+    private readonly IProcedimientoRepository _procedimientos;
+    private readonly IVacunacionRepository _vacunaciones;
     private readonly CalculadoraEdad _calculadoraEdad;
 
     public MascotaService(
         IMascotaRepository mascotas,
         IPropietarioRepository propietarios,
+        IProcedimientoRepository procedimientos,
+        IVacunacionRepository vacunaciones,
         CalculadoraEdad calculadoraEdad)
     {
         _mascotas = mascotas;
         _propietarios = propietarios;
+        _procedimientos = procedimientos;
+        _vacunaciones = vacunaciones;
         _calculadoraEdad = calculadoraEdad;
     }
 
@@ -65,6 +73,40 @@ public class MascotaService : IMascotaService
     public List<Mascota> Buscar(string texto) => _mascotas.Buscar(texto);
 
     public Mascota? ObtenerPorId(int id) => _mascotas.ObtenerPorId(id);
+
+    public HistoriaClinica? ObtenerHistoriaClinica(int mascotaId)
+    {
+        var mascota = _mascotas.ObtenerPorId(mascotaId);
+        if (mascota is null)
+        {
+            return null;
+        }
+
+        var registros = new List<(RegistroClinicoItem Item, int Orden, int Id)>();
+        foreach (var p in _procedimientos.ListarPorMascota(mascotaId))
+        {
+            registros.Add((DescribirProcedimiento(p), 0, p.Id));
+        }
+
+        foreach (var v in _vacunaciones.ListarPorMascota(mascotaId))
+        {
+            registros.Add((DescribirVacunacion(v), 1, v.Id));
+        }
+
+        var ordenados = registros
+            .OrderBy(r => r.Item.Fecha)
+            .ThenBy(r => r.Orden)
+            .ThenBy(r => r.Id)
+            .Select(r => r.Item)
+            .ToList();
+
+        return new HistoriaClinica
+        {
+            Mascota = mascota,
+            FechaApertura = ordenados.Count > 0 ? ordenados[0].Fecha : default,
+            Registros = ordenados,
+        };
+    }
 
     public int CalcularEdadMeses(Mascota mascota) => _calculadoraEdad.EnMeses(mascota.FechaNacimiento);
 
@@ -141,5 +183,54 @@ public class MascotaService : IMascotaService
     {
         var limpio = texto?.Trim();
         return string.IsNullOrEmpty(limpio) ? null : limpio;
+    }
+
+    private static RegistroClinicoItem DescribirProcedimiento(Procedimiento procedimiento)
+    {
+        var detalle = $"{procedimiento.TipoProcedimiento}: {procedimiento.Descripcion}";
+        if (!string.IsNullOrEmpty(procedimiento.Tratamiento))
+        {
+            detalle += $". Tratamiento: {procedimiento.Tratamiento}";
+        }
+
+        if (procedimiento.PesoEnElMomento is { } peso)
+        {
+            detalle += $". Peso: {peso.ToString("0.##", CultureInfo.GetCultureInfo("es-CO"))} kg";
+        }
+
+        return new RegistroClinicoItem
+        {
+            Fecha = procedimiento.Fecha,
+            Origen = "Procedimiento",
+            Detalle = detalle,
+            Veterinario = procedimiento.Veterinario?.NombreCompleto ?? string.Empty,
+        };
+    }
+
+    private static RegistroClinicoItem DescribirVacunacion(Vacunacion vacunacion)
+    {
+        var detalle = vacunacion.NombreVacuna;
+        if (!string.IsNullOrEmpty(vacunacion.Lote))
+        {
+            detalle += $". Lote: {vacunacion.Lote}";
+        }
+
+        if (vacunacion.ProximaFecha is { } refuerzo)
+        {
+            detalle += $". Próximo refuerzo: {refuerzo.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture)}";
+        }
+
+        if (!string.IsNullOrEmpty(vacunacion.Observaciones))
+        {
+            detalle += $". Observaciones: {vacunacion.Observaciones}";
+        }
+
+        return new RegistroClinicoItem
+        {
+            Fecha = vacunacion.FechaAplicacion,
+            Origen = "Vacunacion",
+            Detalle = detalle,
+            Veterinario = vacunacion.Veterinario?.NombreCompleto ?? string.Empty,
+        };
     }
 }

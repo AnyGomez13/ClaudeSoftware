@@ -16,7 +16,12 @@ public class MascotaServiceTests : IDisposable
     private MascotaService CrearServicio()
     {
         var contexto = _bd.CrearContexto();
-        return new MascotaService(new MascotaRepository(contexto), new PropietarioRepository(contexto), new CalculadoraEdad());
+        return new MascotaService(
+            new MascotaRepository(contexto),
+            new PropietarioRepository(contexto),
+            new ProcedimientoRepository(contexto),
+            new VacunacionRepository(contexto),
+            new CalculadoraEdad());
     }
 
     private int ContarMascotas() => _bd.Escalar<int>("SELECT COUNT(*) FROM Mascota;");

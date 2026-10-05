@@ -22,6 +22,7 @@ public class VacunacionRepository : IVacunacionRepository
 
     public List<Vacunacion> ListarPorMascota(int mascotaId) =>
         _contexto.Vacunaciones
+            .AsNoTracking()
             .Include(v => v.Veterinario)
             .Where(v => v.MascotaId == mascotaId)
             .OrderBy(v => v.FechaAplicacion)

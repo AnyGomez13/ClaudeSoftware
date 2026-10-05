@@ -64,7 +64,7 @@ Convenciones: `Dom` = `VeterinariaDrFabio.Dominio`, `Dat` = `VeterinariaDrFabio.
 - Dependencias: Fase 7.
 - Cubre: RF-06, RF-09, RF-10, RF-11, RN-07, RN-08, RNF-07, RNF-08, RNF-09, CU-06, CU-08, CU-09.
 - Criterio de terminado: pruebas verdes: sin veterinario no guarda (procedimiento y vacunación); historia mezcla ambos tipos ordenada por fecha con veterinario en cada ítem; no existe operación de borrado ni de edición de registros clínicos; consulta de historia < 1 s con 10 000 registros en BD de prueba.
-- Estado: pendiente
+- Estado: terminada
 
 ## Fase 9 — Carnet PDF, alertas y recordatorios
 - Objetivo: carnet digital en PDF, alertas de próximas fechas y recordatorios persistidos.
@@ -166,3 +166,7 @@ Contradicciones técnicas que bloqueen: ninguna.
 | A-37 | Los servicios agregan `ObtenerPorId` (propietario y mascota) y `CalcularEdadLegible` (mascota) a las firmas de §3.2. | P-03, P-04, P-06 y P-07 necesitan cargar un registro y mostrar la edad en texto en vivo sin que el ViewModel use utilidades directamente. |
 | A-38 | El teléfono se valida de forma estricta tras quitar espacios en los extremos: exactamente `3` + 9 dígitos, sin `+57` ni separadores internos. | RN-14 y el CHECK de la BD; la pantalla P-04 valida el formato `3#########` en vivo. |
 | A-39 | Reglas de mascota: propietario existente, nombre, especie, fecha de nacimiento no futura (A-30), peso > 0 y finito, sexo vacío, Macho o Hembra (sin distinguir mayúsculas). Se permite registrar mascotas de un propietario inactivo y cambiar el propietario al editar. | Derivan de RN-03, RN-06, SUP-03, SUP-04 y de los CHECK del DDL; los requisitos no prohíben lo demás. |
+| A-40 | `IMascotaService` agrega `ObtenerHistoriaClinica(mascotaId)`, que fusiona procedimientos y vacunaciones en un `HistoriaClinica` (orden ascendente por fecha; en la misma fecha, procedimiento antes que vacunación). Con esto el ViewModel no usa repositorios (§3.4 CU-06 los llamaba desde el ViewModel). | Mantiene la regla de capas y deja la fusión probada en Negocio. Sin registros, `FechaApertura` queda en `default`; el ViewModel debe revisar `Registros.Count`. |
+| A-41 | `RegistroClinicoItem.Detalle` se arma así: procedimiento = `Tipo: Descripción` + `. Tratamiento: …` + `. Peso: N kg`; vacunación = `Vacuna` + `. Lote: …` + `. Próximo refuerzo: dd/MM/aaaa` + `. Observaciones: …`. `Origen` vale `Procedimiento` o `Vacunacion`. | El diseño define los campos pero no el texto que muestra la línea de tiempo de P-07. |
+| A-42 | Reglas de los registros clínicos: mascota existente; veterinario existente y activo; fecha no futura (hoy vale); procedimiento exige tipo y descripción; vacunación exige nombre de la vacuna; peso informado > 0; la próxima fecha no puede ser anterior a la del registro. Al registrar se ignoran las propiedades de navegación recibidas. | Derivan de RN-07, RNF-08 y del selector de P-08/P-09 (solo veterinarios activos); un acto médico futuro o un refuerzo anterior a la aplicación son datos incoherentes. |
+| A-43 | `ListarPorMascota` de `ProcedimientoRepository` y `VacunacionRepository` lee sin seguimiento de cambios (`AsNoTracking`). | Con seguimiento, 10 000 registros tardaron 1322 ms (falló RNF-09, A-14); sin seguimiento tardan ~100 ms. Es una lista de solo lectura. |

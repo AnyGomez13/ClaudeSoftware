@@ -22,6 +22,7 @@ public class ProcedimientoRepository : IProcedimientoRepository
 
     public List<Procedimiento> ListarPorMascota(int mascotaId) =>
         _contexto.Procedimientos
+            .AsNoTracking()
             .Include(p => p.Veterinario)
             .Where(p => p.MascotaId == mascotaId)
             .OrderBy(p => p.Fecha)
