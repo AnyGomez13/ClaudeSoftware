@@ -2,6 +2,7 @@ using System.Windows;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using VeterinariaDrFabio.App.Infraestructura;
+using VeterinariaDrFabio.App.ViewModels;
 using VeterinariaDrFabio.Datos.Contexto;
 using VeterinariaDrFabio.Datos.Repositorios;
 using VeterinariaDrFabio.Negocio.Servicios;
@@ -68,7 +69,11 @@ public partial class App : Application
         servicios.AddTransient<IAlertaService, AlertaService>();
         servicios.AddTransient<IRecordatorioService, RecordatorioService>();
 
-        // Los demás repositorios, servicios y ViewModels se registran en las fases siguientes.
+        // Presentación: navegación y diálogos únicos; los ViewModels de cada pantalla se registran con su fase.
+        servicios.AddSingleton<INavigationService, NavigationService>();
+        servicios.AddSingleton<IDialogService, DialogService>();
+        servicios.AddSingleton<LoginViewModel>();
+        servicios.AddSingleton<MainViewModel>();
         servicios.AddTransient<MainWindow>();
 
         return servicios.BuildServiceProvider();

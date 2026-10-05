@@ -1,0 +1,28 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!-- Paleta minimalista de disenoC.md §4.2 -->
+    <Color x:Key="PrimarioColor">#2A9D8F</Color>
+    <Color x:Key="PrimarioOscuroColor">#218074</Color>
+    <Color x:Key="SecundarioColor">#457B9D</Color>
+    <Color x:Key="FondoColor">#F7F9FA</Color>
+    <Color x:Key="SuperficieColor">#FFFFFF</Color>
+    <Color x:Key="TextoPrincipalColor">#1D2733</Color>
+    <Color x:Key="TextoSecundarioColor">#5B6B7B</Color>
+    <Color x:Key="BordeColor">#E1E8ED</Color>
+    <Color x:Key="ExitoColor">#2E9E5B</Color>
+    <Color x:Key="AdvertenciaColor">#E8A33D</Color>
+    <Color x:Key="ErrorColor">#D64545</Color>
+
+    <SolidColorBrush x:Key="PrimarioBrush" Color="{StaticResource PrimarioColor}" />
+    <SolidColorBrush x:Key="PrimarioOscuroBrush" Color="{StaticResource PrimarioOscuroColor}" />
+    <SolidColorBrush x:Key="SecundarioBrush" Color="{StaticResource SecundarioColor}" />
+    <SolidColorBrush x:Key="FondoBrush" Color="{StaticResource FondoColor}" />
+    <SolidColorBrush x:Key="SuperficieBrush" Color="{StaticResource SuperficieColor}" />
+    <SolidColorBrush x:Key="TextoPrincipalBrush" Color="{StaticResource TextoPrincipalColor}" />
+    <SolidColorBrush x:Key="TextoSecundarioBrush" Color="{StaticResource TextoSecundarioColor}" />
+    <SolidColorBrush x:Key="BordeBrush" Color="{StaticResource BordeColor}" />
+    <SolidColorBrush x:Key="ExitoBrush" Color="{StaticResource ExitoColor}" />
+    <SolidColorBrush x:Key="AdvertenciaBrush" Color="{StaticResource AdvertenciaColor}" />
+    <SolidColorBrush x:Key="ErrorBrush" Color="{StaticResource ErrorColor}" />
+</ResourceDictionary>

@@ -98,7 +98,7 @@
 | 7 | Servicios de propietario y mascota | terminada |
 | 8 | Servicios de procedimiento, vacunación e historia clínica | terminada |
 | 9 | Carnet PDF, alertas y recordatorios | terminada |
-| 10 | Infraestructura UI, login y shell | pendiente |
+| 10 | Infraestructura UI, login y shell | terminada |
 | 11 | UI Propietarios y Veterinarios | pendiente |
 | 12 | UI Mascotas y ficha clínica | pendiente |
 | 13 | UI Procedimiento y vacunación | pendiente |
