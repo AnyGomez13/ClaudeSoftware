@@ -40,7 +40,7 @@ Convenciones: `Dom` = `VeterinariaDrFabio.Dominio`, `Dat` = `VeterinariaDrFabio.
 - Dependencias: Fase 2.
 - Cubre: RF-08, RF-15, RNF-05, RNF-06, RN-05, RN-10, RN-14, SUP-D03, SUP-D07, SUP-D15.
 - Criterio de terminado: `dotnet test --filter "FullyQualifiedName~Utilidades"` verde: edad correcta en casos de borde (cumpleaños hoy, 29 feb, menor de un mes); hash verifica la contraseña correcta, rechaza la incorrecta y genera sal distinta cada vez; enlace `https://wa.me/57<10 dígitos>?text=…` con mensaje codificado y rechazo de teléfonos no válidos.
-- Estado: pendiente
+- Estado: terminada
 
 ## Fase 6 — Autenticación, veterinarios y usuario inicial
 - Objetivo: login contra BD, gestión de veterinarios y mecanismo de puesta en marcha para crear el usuario inicial.
@@ -155,3 +155,6 @@ Contradicciones técnicas que bloqueen: ninguna.
 | A-26 | Se agregaron a las interfaces del diseño: `IUsuarioRepository.Agregar` y, en `IVeterinarioRepository`, `ListarTodos`, `ObtenerPorId` y `Actualizar`. | `--crear-usuario` (A-06) necesita guardar el usuario, y P-12 muestra el estado de todos los veterinarios y permite editarlos. |
 | A-27 | Los repositorios son síncronos, reciben el `VeterinariaDbContext` por constructor y guardan en cada `Agregar`/`Actualizar`. Los listados por mascota salen en orden cronológico ascendente. | §3.2 define los métodos sin `async` ni unidad de trabajo; la historia clínica se lee de la más antigua a la más reciente. |
 | A-28 | `Buscar` usa coincidencia parcial con `Contains` (LIKE de SQLite) e incluye inactivos; texto vacío devuelve todos. | P-03 y P-05 muestran la columna Estado; SQLite ignora mayúsculas solo en ASCII, así que "perez" no encuentra "Pérez". |
+| A-29 | `CalculadoraEdad` agrega sobrecargas con la fecha de referencia (`EnMeses(nacimiento, hoy)`, `Legible(nacimiento, hoy)`) además de las firmas del diseño. | Permite probar casos de borde sin depender del reloj; las firmas originales usan `DateTime.Today`. |
+| A-30 | Un mes se cumple el mismo día del mes, o el último día si ese día no existe (31 de enero, 29 de febrero). Una fecha de nacimiento futura lanza `ArgumentOutOfRangeException`; la Fase 7 debe rechazarla antes de calcular. | El diseño no define el cálculo; evita edades negativas o "Menos de 1 mes" para una mascota que no ha nacido. |
+| A-31 | `GeneradorEnlaceWhatsApp.Construir` lanza `ArgumentException` si el teléfono no cumple `3` + 9 dígitos o el mensaje está vacío; el texto del mensaje lo arma `RecordatorioService` (Fase 9). | La utilidad solo codifica; el diseño le pasa el mensaje ya escrito (`Construir(telefono, mensaje)`). |
